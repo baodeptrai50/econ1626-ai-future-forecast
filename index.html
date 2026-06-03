@@ -7,199 +7,206 @@
 <meta name="description" content="An interactive economic forecast: who captures Australia's AI productivity dividend, and the policy that decides it.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,800;1,9..144,500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,800;1,9..144,500;1,9..144,600&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
     --paper:#f3ede1; --paper-2:#ece3d2; --panel:#f7f2e8;
     --ink:#1c1a16; --ink-soft:#544c40; --ink-faint:#8a7f6c;
+    --ink-panel:#15130e;
     --rule:#d9cdb6; --rule-strong:#c3b393;
-    --capital:#a9711e;       /* dividend / capital — flows up */
-    --capital-soft:#d6a44a;
-    --labour:#b23a23;        /* labour share / median worker */
-    --labour-soft:#d97a5e;
-    --signal:#2f5d54;        /* interactive accent / policy */
-    --signal-soft:#4c8377;
+    --capital:#a9711e; --capital-soft:#d6a44a; --capital-glow:#e6b24e;
+    --labour:#b23a23; --labour-soft:#d97a5e; --labour-glow:#e2683f;
+    --signal:#2f5d54; --signal-soft:#4c8377; --signal-glow:#6fae9f;
     --gap-fill:rgba(178,58,35,.10);
-    --shadow:0 1px 0 var(--rule), 0 18px 40px -28px rgba(40,30,15,.5);
-    --serif:"Newsreader",Georgia,serif;
-    --display:"Fraunces",Georgia,serif;
-    --mono:"IBM Plex Mono",ui-monospace,monospace;
+    --shadow:0 1px 0 var(--rule),0 18px 40px -28px rgba(40,30,15,.5);
+    --serif:"Newsreader",Georgia,serif; --display:"Fraunces",Georgia,serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
   }
   *{box-sizing:border-box;}
   html{scroll-behavior:smooth;}
-  body{
-    margin:0; background:var(--paper); color:var(--ink);
-    font-family:var(--serif); font-size:19px; line-height:1.62; font-weight:400;
-    -webkit-font-smoothing:antialiased;
-    background-image:
-      radial-gradient(circle at 12% 8%, rgba(169,113,30,.05), transparent 42%),
-      radial-gradient(circle at 88% 92%, rgba(47,93,84,.05), transparent 45%);
-    background-attachment:fixed;
-  }
-  ::selection{background:var(--capital-soft); color:var(--ink);}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--serif);font-size:19px;line-height:1.62;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+  /* living background */
+  body::before{content:"";position:fixed;inset:0;z-index:-2;background:
+    radial-gradient(60vw 60vw at 8% 4%,rgba(169,113,30,.07),transparent 55%),
+    radial-gradient(55vw 55vw at 96% 96%,rgba(47,93,84,.07),transparent 55%),
+    radial-gradient(40vw 40vw at 80% 12%,rgba(178,58,35,.05),transparent 55%);}
+  /* film grain */
+  body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.55;mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");}
+  ::selection{background:var(--capital-soft);color:var(--ink);}
 
-  /* ---------- header / progress ---------- */
-  header.bar{
-    position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) blur(6px);
-    background:rgba(243,237,225,.86); border-bottom:1px solid var(--rule);
-  }
-  .bar-inner{max-width:1080px; margin:0 auto; padding:.55rem 1.4rem; display:flex; align-items:center; justify-content:space-between; gap:1rem;}
-  .mast{font-family:var(--mono); font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft);}
-  .mast b{color:var(--ink); font-weight:600;}
-  nav.dots{display:flex; gap:.5rem; flex-wrap:wrap;}
-  nav.dots a{font-family:var(--mono); font-size:.66rem; letter-spacing:.05em; color:var(--ink-faint); text-decoration:none; padding:.15rem .35rem; border-radius:3px;}
-  nav.dots a:hover,nav.dots a.on{color:var(--signal); background:rgba(47,93,84,.08);}
-  #scroll-progress{height:2px; background:var(--labour); width:0%; transition:width .1s linear;}
+  header.bar{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(7px);background:rgba(243,237,225,.84);border-bottom:1px solid var(--rule);}
+  .bar-inner{max-width:1080px;margin:0 auto;padding:.55rem 1.4rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;}
+  .mast{font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);}
+  .mast b{color:var(--ink);font-weight:600;}
+  nav.dots{display:flex;gap:.4rem;flex-wrap:wrap;}
+  nav.dots a{font-family:var(--mono);font-size:.66rem;color:var(--ink-faint);text-decoration:none;padding:.15rem .35rem;border-radius:3px;transition:.16s;}
+  nav.dots a:hover,nav.dots a.on{color:var(--signal);background:rgba(47,93,84,.09);}
+  #scroll-progress{height:2px;background:linear-gradient(90deg,var(--capital),var(--labour));width:0%;}
 
-  /* ---------- layout ---------- */
-  main{max-width:1080px; margin:0 auto; padding:0 1.4rem;}
-  section{padding:4.2rem 0 3.2rem; border-bottom:1px solid var(--rule);}
+  main{max-width:1080px;margin:0 auto;padding:0 1.4rem;}
+  section{padding:4.2rem 0 3.2rem;border-bottom:1px solid var(--rule);}
   .col{max-width:680px;}
-  .seclabel{font-family:var(--mono); font-size:.72rem; letter-spacing:.22em; text-transform:uppercase; color:var(--labour); margin-bottom:1.1rem;}
-  h1,h2,h3{font-family:var(--display); font-weight:600; line-height:1.05; letter-spacing:-.01em;}
-  h2{font-size:clamp(1.9rem,4.4vw,2.9rem); margin:.2rem 0 1.2rem; font-weight:800;}
-  h3{font-size:1.34rem; margin:2.3rem 0 .6rem; font-weight:600;}
+  body.js .reveal{opacity:0;transform:translateY(22px);transition:opacity .8s cubic-bezier(.2,.6,.2,1),transform .8s cubic-bezier(.2,.6,.2,1);}
+  body.js .reveal.in{opacity:1;transform:none;}
+  .seclabel{font-family:var(--mono);font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:var(--labour);margin-bottom:1.1rem;display:flex;align-items:center;gap:.6rem;}
+  .seclabel::before{content:"";width:26px;height:1px;background:var(--labour);display:inline-block;}
+  h1,h2,h3{font-family:var(--display);font-weight:600;line-height:1.05;letter-spacing:-.01em;}
+  h2{font-size:clamp(1.9rem,4.4vw,2.9rem);margin:.2rem 0 1.2rem;font-weight:800;}
+  h3{font-size:1.34rem;margin:2.3rem 0 .6rem;}
   p{margin:0 0 1.1rem;}
-  a{color:var(--signal); text-decoration-thickness:1px; text-underline-offset:2px;}
-  strong{font-weight:500;}
-  em{font-style:italic;}
+  a{color:var(--signal);text-underline-offset:2px;}
+  strong{font-weight:500;} em{font-style:italic;}
 
-  /* ---------- hero ---------- */
-  .hero{padding:5.5rem 0 4rem; border-bottom:1px solid var(--rule);}
-  .kicker{font-family:var(--mono); font-size:.78rem; letter-spacing:.24em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:1.4rem;}
-  h1{font-size:clamp(2.7rem,7vw,5rem); margin:0 0 1.3rem; letter-spacing:-.025em;}
-  h1 .it{font-style:italic; font-weight:500; color:var(--labour);}
-  .dek{font-size:clamp(1.15rem,2.2vw,1.45rem); max-width:680px; color:var(--ink-soft); font-weight:300; line-height:1.5;}
-  .byline{font-family:var(--mono); font-size:.74rem; letter-spacing:.08em; color:var(--ink-faint); margin-top:2rem; text-transform:uppercase;}
+  /* hero */
+  .hero{padding:6rem 0 3rem;border-bottom:none;position:relative;}
+  .kicker{font-family:var(--mono);font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:1.4rem;}
+  .kicker .cur{display:inline-block;width:8px;height:1.05em;background:var(--labour);margin-left:3px;vertical-align:-2px;animation:blink 1.1s steps(1) infinite;}
+  @keyframes blink{50%{opacity:0;}}
+  h1{font-size:clamp(2.7rem,7.2vw,5.2rem);margin:0 0 1.3rem;letter-spacing:-.025em;}
+  h1 .it{font-style:italic;font-weight:600;color:var(--labour);}
+  h1 .w{display:inline-block;opacity:0;transform:translateY(26px);animation:rise .9s cubic-bezier(.2,.7,.2,1) forwards;}
+  @keyframes rise{to{opacity:1;transform:none;}}
+  .dek{font-size:clamp(1.15rem,2.2vw,1.45rem);max-width:680px;color:var(--ink-soft);font-weight:300;line-height:1.5;opacity:0;animation:rise .9s ease .9s forwards;}
+  .byline{font-family:var(--mono);font-size:.74rem;letter-spacing:.08em;color:var(--ink-faint);margin-top:2rem;text-transform:uppercase;opacity:0;animation:rise .9s ease 1.15s forwards;}
+  .scrollcue{margin-top:2.4rem;font-family:var(--mono);font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-faint);opacity:0;animation:rise .9s ease 1.4s forwards;}
+  .scrollcue span{display:inline-block;animation:bob 1.8s ease-in-out infinite;}
+  @keyframes bob{50%{transform:translateY(5px);}}
 
-  /* hero chart */
-  .herochart{margin:3rem 0 0; border-top:1px solid var(--rule-strong); padding-top:1.4rem;}
-  .chart-cap{font-family:var(--mono); font-size:.72rem; letter-spacing:.04em; color:var(--ink-soft); display:flex; gap:1.4rem; flex-wrap:wrap; margin-bottom:.4rem;}
-  .swatch{display:inline-flex; align-items:center; gap:.4rem;}
-  .swatch i{width:22px; height:0; border-top-width:3px; border-top-style:solid; display:inline-block;}
-  .drawline{stroke-dasharray:1400; stroke-dashoffset:1400; animation:draw 2.2s cubic-bezier(.4,0,.1,1) forwards;}
-  .drawline.l2{animation-delay:.35s;}
-  @keyframes draw{to{stroke-dashoffset:0;}}
-  .gapwedge{opacity:0; animation:fadein 1.2s ease 1.9s forwards;}
-  @keyframes fadein{to{opacity:1;}}
+  /* scrollytelling */
+  .scrolly{position:relative;}
+  .sticky{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;justify-content:center;}
+  .scrolly-steps{position:relative;}
+  .scrolly-cap{max-width:430px;font-family:var(--display);font-size:clamp(1.3rem,3vw,2rem);font-weight:500;line-height:1.2;opacity:.18;transition:opacity .4s ease;margin:0 0 .6rem;}
+  .scrolly-cap.on{opacity:1;}
+  .scrolly-cap b{color:var(--labour);font-style:italic;}
+  .counter{font-family:var(--mono);font-size:.78rem;letter-spacing:.06em;color:var(--ink-soft);margin-bottom:1rem;}
+  .counter b{font-family:var(--display);font-size:1.7rem;font-weight:700;color:var(--capital);}
+  .counter .ls{color:var(--labour);}
+  .chart-cap{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);display:flex;gap:1.4rem;flex-wrap:wrap;margin-bottom:.5rem;}
+  .swatch{display:inline-flex;align-items:center;gap:.4rem;}
+  .swatch i{width:22px;border-top:3px solid;display:inline-block;}
 
-  /* ---------- drop cap ---------- */
-  .lead::first-letter{font-family:var(--display); font-weight:800; float:left; font-size:4.6rem; line-height:.78; padding:.3rem .55rem 0 0; color:var(--labour);}
+  .lead::first-letter{font-family:var(--display);font-weight:800;float:left;font-size:4.6rem;line-height:.78;padding:.3rem .55rem 0 0;color:var(--labour);}
+  .pull{font-family:var(--display);font-size:1.55rem;line-height:1.3;font-weight:500;font-style:italic;border-left:3px solid var(--labour);padding:.2rem 0 .2rem 1.3rem;margin:2rem 0;}
 
-  /* ---------- inline source/assumption tags ---------- */
-  .src,.asm{position:relative; cursor:help; white-space:nowrap;}
-  .src{border-bottom:1px solid var(--capital);}
-  .asm{border-bottom:1px dotted var(--labour);}
-  .src::after,.asm::after{
-    content:attr(data-cite); position:absolute; left:50%; bottom:135%; transform:translateX(-50%) translateY(4px);
-    background:var(--ink); color:var(--paper); font-family:var(--mono); font-size:.66rem; line-height:1.4; letter-spacing:.02em;
-    padding:.45rem .6rem; border-radius:4px; width:max-content; max-width:260px; white-space:normal; text-align:left;
-    opacity:0; pointer-events:none; transition:opacity .15s ease,transform .15s ease; z-index:30; box-shadow:0 8px 20px -10px rgba(0,0,0,.5);
-  }
-  .src:hover::after,.asm:hover::after,.src:focus::after,.asm:focus::after{opacity:1; transform:translateX(-50%) translateY(0);}
-  .asm::before{content:"≈"; font-family:var(--mono); color:var(--labour); font-size:.7em; vertical-align:.15em; margin-right:.1em;}
+  .src,.asm{position:relative;cursor:help;white-space:nowrap;}
+  .src{border-bottom:1px solid var(--capital);} .asm{border-bottom:1px dotted var(--labour);}
+  .asm::before{content:"~";font-family:var(--mono);color:var(--labour);font-size:.7em;vertical-align:.15em;margin-right:.1em;}
+  .src::after,.asm::after{content:attr(data-cite);position:absolute;left:50%;bottom:135%;transform:translateX(-50%) translateY(4px);background:var(--ink);color:var(--paper);font-family:var(--mono);font-size:.66rem;line-height:1.4;padding:.45rem .6rem;border-radius:4px;width:max-content;max-width:260px;white-space:normal;text-align:left;opacity:0;pointer-events:none;transition:.15s;z-index:30;box-shadow:0 8px 20px -10px rgba(0,0,0,.5);}
+  .src:hover::after,.asm:hover::after{opacity:1;transform:translateX(-50%);}
 
-  /* ---------- generic interactive panel ---------- */
-  .tool{background:var(--panel); border:1px solid var(--rule-strong); border-radius:8px; padding:1.6rem 1.6rem 1.8rem; margin:2.2rem 0; box-shadow:var(--shadow);}
-  .tool-head{display:flex; align-items:baseline; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1.1rem;}
-  .tool-title{font-family:var(--mono); font-size:.74rem; letter-spacing:.14em; text-transform:uppercase; color:var(--signal); font-weight:600;}
-  .tool-sub{font-size:.92rem; color:var(--ink-soft); max-width:560px; line-height:1.45;}
+  .tool{background:var(--panel);border:1px solid var(--rule-strong);border-radius:9px;padding:1.6rem;margin:2.2rem 0;box-shadow:var(--shadow);}
+  .tool-head{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1.1rem;}
+  .tool-title{font-family:var(--mono);font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--signal);font-weight:600;}
+  .tool-sub{font-size:.92rem;color:var(--ink-soft);max-width:560px;line-height:1.45;}
 
-  /* exposure explorer */
-  .occ-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:.45rem; margin-bottom:1.3rem;}
-  .occ-btn{font-family:var(--mono); font-size:.74rem; text-align:left; padding:.55rem .65rem; border:1px solid var(--rule-strong); background:var(--paper); color:var(--ink-soft); border-radius:5px; cursor:pointer; transition:.16s; line-height:1.2;}
-  .occ-btn:hover{border-color:var(--signal); color:var(--ink);}
-  .occ-btn.on{background:var(--ink); color:var(--paper); border-color:var(--ink);}
-  .occ-readout{display:grid; grid-template-columns:1fr; gap:1rem;}
-  .bar-row{display:grid; grid-template-columns:130px 1fr 52px; align-items:center; gap:.7rem; font-family:var(--mono); font-size:.78rem;}
-  .bar-track{height:18px; background:var(--paper-2); border-radius:3px; overflow:hidden; border:1px solid var(--rule);}
-  .bar-fill{height:100%; width:0; transition:width .7s cubic-bezier(.3,0,.1,1); border-radius:3px 0 0 3px;}
+  .occ-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.45rem;margin-bottom:1.3rem;}
+  .occ-btn{font-family:var(--mono);font-size:.74rem;text-align:left;padding:.55rem .65rem;border:1px solid var(--rule-strong);background:var(--paper);color:var(--ink-soft);border-radius:5px;cursor:pointer;transition:.16s;line-height:1.2;}
+  .occ-btn:hover{border-color:var(--signal);color:var(--ink);transform:translateY(-1px);}
+  .occ-btn.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .bar-row{display:grid;grid-template-columns:130px 1fr 52px;align-items:center;gap:.7rem;font-family:var(--mono);font-size:.78rem;margin-bottom:.9rem;}
+  .bar-track{height:18px;background:var(--paper-2);border-radius:3px;overflow:hidden;border:1px solid var(--rule);}
+  .bar-fill{height:100%;width:0;transition:width .7s cubic-bezier(.3,0,.1,1);}
   .bar-fill.auto{background:linear-gradient(90deg,var(--labour-soft),var(--labour));}
   .bar-fill.aug{background:linear-gradient(90deg,var(--capital-soft),var(--capital));}
-  .occ-note{font-size:.86rem; color:var(--ink-soft); margin-top:1rem; line-height:1.5;}
+  .occ-note{font-size:.86rem;color:var(--ink-soft);margin-top:.6rem;line-height:1.5;}
 
-  /* ratchet sim */
-  .ratchet-controls{display:flex; align-items:center; gap:1rem; flex-wrap:wrap; margin-bottom:1.2rem;}
-  .btn{font-family:var(--mono); font-size:.74rem; letter-spacing:.06em; text-transform:uppercase; padding:.55rem 1rem; border:1px solid var(--signal); background:var(--signal); color:var(--paper); border-radius:5px; cursor:pointer; transition:.16s;}
-  .btn:hover{background:var(--signal-soft); border-color:var(--signal-soft);}
-  .btn.ghost{background:transparent; color:var(--signal);}
-  .btn.ghost:hover{background:rgba(47,93,84,.08); color:var(--signal);}
-  .toggle{display:inline-flex; align-items:center; gap:.55rem; font-family:var(--mono); font-size:.74rem; color:var(--ink-soft); cursor:pointer; user-select:none;}
-  .toggle input{appearance:none; width:38px; height:20px; background:var(--rule-strong); border-radius:20px; position:relative; cursor:pointer; transition:.2s; outline:none;}
+  /* dark instrument / allocation engine */
+  .tool.dark{background:var(--ink-panel);border-color:#2a261d;color:#e9e1d0;}
+  .tool.dark .tool-title{color:var(--capital-glow);}
+  .tool.dark .tool-sub{color:#b6ac96;}
+  .engine{position:relative;height:340px;border-radius:7px;overflow:hidden;background:radial-gradient(120% 120% at 8% 50%,#1d1a12,#100e09);}
+  @media(max-width:700px){.engine{height:300px;}}
+  .engine canvas{position:absolute;inset:0;width:100%;height:100%;}
+  .src-node{position:absolute;left:3%;top:50%;transform:translateY(-50%);width:120px;font-family:var(--mono);font-size:.66rem;color:#cdbf9f;line-height:1.35;text-align:left;}
+  .src-node .amt{font-family:var(--display);font-size:1.5rem;font-weight:700;color:var(--capital-glow);display:block;}
+  .bins{position:absolute;right:2.5%;top:0;height:100%;width:38%;min-width:170px;display:flex;flex-direction:column;justify-content:space-around;}
+  .bin{font-family:var(--mono);}
+  .bin .lab{font-size:.66rem;letter-spacing:.04em;color:#cdbf9f;display:flex;justify-content:space-between;margin-bottom:.25rem;}
+  .bin .lab b{font-weight:600;}
+  .bin .bt{height:9px;background:rgba(255,255,255,.08);border-radius:5px;overflow:hidden;}
+  .bin .bf{height:100%;width:10%;border-radius:5px;transition:width .35s ease;}
+  .bin.cap .bf{background:linear-gradient(90deg,#8a6322,var(--capital-glow));}
+  .bin.high .bf{background:linear-gradient(90deg,#2f5d54,var(--signal-glow));}
+  .bin.mid .bf{background:linear-gradient(90deg,#8f3520,var(--labour-glow));}
+  .bin .amt{font-size:.62rem;color:#9a9079;margin-top:.15rem;}
+  .engine-foot{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;margin-top:1rem;font-family:var(--mono);font-size:.74rem;color:#b6ac96;}
+  .engine-foot .gapread{font-size:.8rem;}
+  .engine-foot .gapread b{font-family:var(--display);font-size:1.25rem;}
+
+  /* instrument controls row */
+  .instr{display:grid;grid-template-columns:300px 1fr;gap:1.8rem;margin-top:1.6rem;}
+  @media(max-width:760px){.instr{grid-template-columns:1fr;}}
+  .levers{display:flex;flex-direction:column;gap:1.2rem;}
+  .lever label{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.74rem;color:#b6ac96;margin-bottom:.35rem;}
+  .tool.dark .lever label b{color:var(--capital-glow);}
+  .lever input[type=range]{width:100%;appearance:none;height:4px;background:#3a352a;border-radius:4px;outline:none;}
+  .lever input[type=range]::-webkit-slider-thumb{appearance:none;width:18px;height:18px;border-radius:50%;background:var(--capital-glow);cursor:pointer;border:2px solid var(--ink-panel);}
+  .lever input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--capital-glow);cursor:pointer;border:2px solid var(--ink-panel);}
+  .lever .hint{font-size:.74rem;color:#8a8169;margin-top:.2rem;line-height:1.35;}
+  .scenario-badge{font-family:var(--mono);font-size:.78rem;letter-spacing:.06em;padding:.5rem .7rem;border-radius:5px;text-align:center;font-weight:600;border:1px solid;transition:.3s;}
+  .readouts{display:grid;grid-template-columns:repeat(2,1fr);gap:.6rem;margin-top:1rem;}
+  .ro{background:rgba(255,255,255,.04);border:1px solid #2f2a20;border-radius:6px;padding:.55rem .65rem;}
+  .ro .k{font-family:var(--mono);font-size:.6rem;letter-spacing:.06em;text-transform:uppercase;color:#8a8169;}
+  .ro .v{font-family:var(--display);font-size:1.45rem;font-weight:600;color:#ece1cd;transition:color .3s;}
+  .ro .v small{font-size:.68rem;font-family:var(--mono);color:#8a8169;}
+  .gamewrap svg{width:100%;}
+  .axis{font-family:var(--mono);font-size:9px;fill:#7d745f;}
+  .tool.dark .gridline{stroke:#2c281e;} .gridline{stroke:var(--rule);stroke-width:1;}
+  .benchline{stroke:var(--labour-glow);stroke-width:1.2;stroke-dasharray:5 4;}
+  .gamenote{font-size:.82rem;color:#b6ac96;margin-top:.5rem;line-height:1.45;}
+
+  /* ratchet (light) */
+  .ratchet-controls{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1.2rem;}
+  .btn{font-family:var(--mono);font-size:.74rem;letter-spacing:.06em;text-transform:uppercase;padding:.55rem 1rem;border:1px solid var(--signal);background:var(--signal);color:var(--paper);border-radius:5px;cursor:pointer;transition:.16s;}
+  .btn:hover{background:var(--signal-soft);border-color:var(--signal-soft);transform:translateY(-1px);}
+  .btn.ghost{background:transparent;color:var(--signal);}
+  .toggle{display:inline-flex;align-items:center;gap:.55rem;font-family:var(--mono);font-size:.74rem;color:var(--ink-soft);cursor:pointer;user-select:none;}
+  .toggle input{appearance:none;width:38px;height:20px;background:var(--rule-strong);border-radius:20px;position:relative;cursor:pointer;transition:.2s;}
   .toggle input:checked{background:var(--signal);}
-  .toggle input::after{content:""; position:absolute; width:16px; height:16px; background:var(--paper); border-radius:50%; top:2px; left:2px; transition:.2s;}
+  .toggle input::after{content:"";position:absolute;width:16px;height:16px;background:var(--paper);border-radius:50%;top:2px;left:2px;transition:.2s;}
   .toggle input:checked::after{left:20px;}
-  .yearflag{font-family:var(--mono); font-size:.74rem; color:var(--ink-soft); margin-left:auto;}
-  .yearflag b{color:var(--labour); font-size:1.05rem;}
+  .yearflag{font-family:var(--mono);font-size:.74rem;color:var(--ink-soft);margin-left:auto;}
+  .yearflag b{color:var(--labour);font-size:1.05rem;}
 
-  /* wargame */
-  .game{display:grid; grid-template-columns:300px 1fr; gap:1.8rem;}
-  @media(max-width:760px){.game{grid-template-columns:1fr;} .occ-grid{grid-template-columns:repeat(2,1fr);}}
-  .levers{display:flex; flex-direction:column; gap:1.25rem;}
-  .lever label{display:flex; justify-content:space-between; font-family:var(--mono); font-size:.74rem; letter-spacing:.04em; color:var(--ink-soft); margin-bottom:.35rem;}
-  .lever label b{color:var(--signal);}
-  .lever input[type=range]{width:100%; appearance:none; height:4px; background:var(--rule-strong); border-radius:4px; outline:none;}
-  .lever input[type=range]::-webkit-slider-thumb{appearance:none; width:18px; height:18px; border-radius:50%; background:var(--signal); cursor:pointer; border:2px solid var(--paper); box-shadow:0 1px 4px rgba(0,0,0,.3);}
-  .lever input[type=range]::-moz-range-thumb{width:18px; height:18px; border-radius:50%; background:var(--signal); cursor:pointer; border:2px solid var(--paper);}
-  .lever .hint{font-size:.78rem; color:var(--ink-faint); margin-top:.2rem; line-height:1.4;}
-  .scenario-badge{font-family:var(--mono); font-size:.78rem; letter-spacing:.08em; padding:.5rem .7rem; border-radius:5px; text-align:center; font-weight:600; border:1px solid; transition:.3s;}
-  .readouts{display:grid; grid-template-columns:repeat(2,1fr); gap:.7rem; margin-top:1.2rem;}
-  .ro{background:var(--paper); border:1px solid var(--rule); border-radius:6px; padding:.6rem .7rem;}
-  .ro .k{font-family:var(--mono); font-size:.62rem; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint);}
-  .ro .v{font-family:var(--display); font-size:1.5rem; font-weight:600; transition:color .3s;}
-  .ro .v small{font-size:.7rem; font-family:var(--mono); color:var(--ink-faint); font-weight:400;}
+  .scards{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:1.6rem 0;}
+  @media(max-width:760px){.scards{grid-template-columns:1fr;}.bar-row{grid-template-columns:96px 1fr 44px;}}
+  .scard{border:1px solid var(--rule-strong);border-radius:7px;padding:1.1rem 1.2rem;background:var(--panel);transition:transform .25s ease,box-shadow .25s ease;}
+  .scard:hover{transform:translateY(-3px);box-shadow:0 14px 30px -22px rgba(40,30,15,.6);}
+  .scard.base{border-top:4px solid var(--ink-soft);} .scard.up{border-top:4px solid var(--signal);} .scard.down{border-top:4px solid var(--labour);}
+  .scard h4{font-family:var(--display);font-size:1.1rem;margin:.2rem 0 .5rem;font-weight:600;}
+  .scard .tag{font-family:var(--mono);font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);}
+  .scard p{font-size:.88rem;line-height:1.5;color:var(--ink-soft);margin:.5rem 0 0;}
+  .scard .num{font-family:var(--display);font-size:1.7rem;font-weight:700;display:block;margin:.4rem 0 .1rem;}
+  .bench{background:var(--paper-2);border:1px dashed var(--rule-strong);border-radius:6px;padding:1rem 1.2rem;margin:1.6rem 0;font-size:.92rem;}
+  .bench b{font-family:var(--mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--labour);display:block;margin-bottom:.5rem;}
+  .bench ol{margin:0;padding-left:1.2rem;} .bench li{margin:.3rem 0;color:var(--ink-soft);}
 
-  /* matrix */
-  .matrix{display:grid; grid-template-columns:repeat(4,1fr); gap:.5rem; margin:1.2rem 0;}
+  .matrix{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin:1.2rem 0;}
   @media(max-width:620px){.matrix{grid-template-columns:repeat(2,1fr);}}
-  .mcell{font-family:var(--mono); font-size:.72rem; text-align:center; padding:.75rem .4rem; border:1px solid var(--rule-strong); border-radius:6px; background:var(--paper); cursor:pointer; transition:.16s; line-height:1.25; color:var(--ink-soft);}
-  .mcell:hover{border-color:var(--signal); color:var(--ink);}
-  .mcell.on{background:var(--signal); color:var(--paper); border-color:var(--signal);}
-  .mdetail{background:var(--paper); border:1px solid var(--rule); border-left:3px solid var(--signal); border-radius:0 6px 6px 0; padding:1rem 1.2rem; min-height:80px; font-size:.95rem; line-height:1.5;}
-  .mdetail .lk{font-family:var(--mono); font-size:.7rem; letter-spacing:.06em; text-transform:uppercase; color:var(--signal); display:block; margin-bottom:.3rem;}
+  .mcell{font-family:var(--mono);font-size:.72rem;text-align:center;padding:.75rem .4rem;border:1px solid var(--rule-strong);border-radius:6px;background:var(--paper);cursor:pointer;transition:.16s;line-height:1.25;color:var(--ink-soft);}
+  .mcell:hover{border-color:var(--signal);color:var(--ink);transform:translateY(-1px);}
+  .mcell.on{background:var(--signal);color:var(--paper);border-color:var(--signal);}
+  .mdetail{background:var(--paper);border:1px solid var(--rule);border-left:3px solid var(--signal);border-radius:0 6px 6px 0;padding:1rem 1.2rem;min-height:80px;font-size:.95rem;line-height:1.5;}
+  .mdetail .lk{font-family:var(--mono);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;color:var(--signal);display:block;margin-bottom:.3rem;}
 
-  /* tables / scenario cards */
-  .scards{display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin:1.6rem 0;}
-  @media(max-width:760px){.scards{grid-template-columns:1fr;}}
-  .scard{border:1px solid var(--rule-strong); border-radius:7px; padding:1.1rem 1.2rem; background:var(--panel);}
-  .scard.base{border-top:4px solid var(--ink-soft);}
-  .scard.up{border-top:4px solid var(--signal);}
-  .scard.down{border-top:4px solid var(--labour);}
-  .scard h4{font-family:var(--display); font-size:1.1rem; margin:.2rem 0 .5rem; font-weight:600;}
-  .scard .tag{font-family:var(--mono); font-size:.64rem; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint);}
-  .scard p{font-size:.88rem; line-height:1.5; color:var(--ink-soft); margin:.5rem 0 0;}
-  .scard .num{font-family:var(--display); font-size:1.7rem; font-weight:700; display:block; margin:.4rem 0 .1rem;}
-
-  .bench{background:var(--paper-2); border:1px dashed var(--rule-strong); border-radius:6px; padding:1rem 1.2rem; margin:1.6rem 0; font-size:.92rem;}
-  .bench b{font-family:var(--mono); font-size:.72rem; letter-spacing:.1em; text-transform:uppercase; color:var(--labour); display:block; margin-bottom:.5rem;}
-  .bench ol{margin:0; padding-left:1.2rem;} .bench li{margin:.3rem 0; color:var(--ink-soft);}
-
-  .pull{font-family:var(--display); font-size:1.55rem; line-height:1.3; font-weight:500; font-style:italic; color:var(--ink); border-left:3px solid var(--labour); padding:.2rem 0 .2rem 1.3rem; margin:2rem 0;}
-
-  /* methods + refs */
-  .meta-grid{columns:2; column-gap:2.4rem;}
-  @media(max-width:680px){.meta-grid{columns:1;} .bar-row{grid-template-columns:96px 1fr 44px;}}
-  ul.refs{list-style:none; padding:0; margin:1rem 0 0; font-size:.84rem; line-height:1.5; color:var(--ink-soft);}
-  ul.refs li{padding:.45rem 0; border-bottom:1px solid var(--rule); text-indent:-1.2em; padding-left:1.2em;}
-  ul.refs li b{color:var(--ink); font-weight:500;}
-  footer{padding:3rem 0 4rem; text-align:center; font-family:var(--mono); font-size:.72rem; letter-spacing:.06em; color:var(--ink-faint);}
-  .axis{font-family:var(--mono); font-size:9px; fill:var(--ink-faint);}
-  .gridline{stroke:var(--rule); stroke-width:1;}
-  .benchline{stroke:var(--labour); stroke-width:1.2; stroke-dasharray:5 4;}
+  .meta-grid{columns:2;column-gap:2.4rem;}
+  @media(max-width:680px){.meta-grid{columns:1;}}
+  ul.refs{list-style:none;padding:0;margin:1rem 0 0;font-size:.84rem;line-height:1.5;color:var(--ink-soft);}
+  ul.refs li{padding:.45rem 0;border-bottom:1px solid var(--rule);text-indent:-1.2em;padding-left:1.2em;}
+  ul.refs li b{color:var(--ink);font-weight:500;}
+  footer{padding:3rem 0 4rem;text-align:center;font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;color:var(--ink-faint);}
 </style>
 </head>
 <body>
+<script>document.body.classList.add('js');</script>
 
 <header class="bar">
   <div class="bar-inner">
-    <div class="mast"><b>The Distribution Problem</b> · AU AI Forecast 2025–30</div>
+    <div class="mast"><b>The Distribution Problem</b> &middot; AU AI Forecast 2025&ndash;30</div>
     <nav class="dots" id="nav">
-      <a href="#thesis">00 Thesis</a>
-      <a href="#channels">01 Channels</a>
-      <a href="#ratchet">02 Ratchet</a>
-      <a href="#scenarios">03 Scenarios</a>
-      <a href="#playbook">04 Playbook</a>
-      <a href="#methods">05 Methods</a>
+      <a href="#thesis">00 Thesis</a><a href="#channels">01 Channels</a><a href="#ratchet">02 Ratchet</a>
+      <a href="#scenarios">03 Scenarios</a><a href="#playbook">04 Playbook</a><a href="#methods">05 Methods</a>
     </nav>
   </div>
   <div id="scroll-progress"></div>
@@ -207,278 +214,230 @@
 
 <main>
 
-<!-- ============ HERO / THESIS ============ -->
+<!-- HERO -->
 <section class="hero" id="thesis">
-  <div class="kicker">ECON1626 · An interactive economic forecast · Australia 2025–2030</div>
-  <h1>Australia will get its AI dividend.<br>The question is <span class="it">who keeps it.</span></h1>
-  <p class="dek">A productivity windfall is coming. On current policy, it flows to capital and high-skill labour — opening a measurable wedge between the wealth AI creates and the share that reaches the workers it displaces. This is the distribution gap, and it is a policy choice.</p>
+  <div class="kicker">ECON1626 &middot; An interactive economic forecast &middot; Australia 2025&ndash;2030<span class="cur"></span></div>
+  <h1><span class="w" style="animation-delay:.05s">Australia</span> <span class="w" style="animation-delay:.12s">will</span> <span class="w" style="animation-delay:.19s">get</span> <span class="w" style="animation-delay:.26s">its</span> <span class="w" style="animation-delay:.33s">AI</span> <span class="w" style="animation-delay:.4s">dividend.</span><br><span class="w" style="animation-delay:.55s">The</span> <span class="w" style="animation-delay:.62s">question</span> <span class="w" style="animation-delay:.69s">is</span> <span class="w it" style="animation-delay:.78s">who&nbsp;keeps&nbsp;it.</span></h1>
+  <p class="dek">A productivity windfall is coming. On current policy it flows to capital and high-skill labour &mdash; opening a measurable wedge between the wealth AI creates and the share that reaches the workers it displaces. This is the distribution gap, and it is a policy choice.</p>
+  <div class="byline">A mechanism-first forecast &middot; Coasean policy lens &middot; every figure sourced or tagged</div>
+  <div class="scrollcue"><span>&darr; scroll &mdash; watch the gap open</span></div>
+</section>
 
-  <div class="herochart">
+<!-- SCROLLYTELLING GAP -->
+<section class="scrolly" id="gap-scroll" style="border-bottom:none;padding-bottom:0;">
+  <div class="sticky">
+    <div class="counter">PRODUCTIVITY DIVIDEND <b id="cnt">$0bn</b> &nbsp;&middot;&nbsp; LABOUR'S SHARE OF GAINS <b class="ls" id="cntLs">held flat</b></div>
     <div class="chart-cap">
-      <span class="swatch"><i style="border-top-color:var(--capital)"></i> Productivity dividend (index)</span>
-      <span class="swatch"><i style="border-top-color:var(--labour)"></i> Labour's share of the gains</span>
-      <span class="swatch" style="color:var(--labour)">▨ the distribution gap</span>
+      <span class="swatch"><i style="border-top-color:var(--capital)"></i> Dividend (index)</span>
+      <span class="swatch"><i style="border-top-color:var(--labour)"></i> Labour's share</span>
+      <span class="swatch" style="color:var(--labour)">&#x2728; the distribution gap</span>
     </div>
-    <svg viewBox="0 0 880 280" width="100%" role="img" aria-label="Two diverging lines: a rising productivity dividend and a flat labour share, with the widening gap between them shaded.">
-      <!-- gridlines -->
-      <line class="gridline" x1="40" y1="40" x2="860" y2="40"/>
-      <line class="gridline" x1="40" y1="120" x2="860" y2="120"/>
-      <line class="gridline" x1="40" y1="200" x2="860" y2="200"/>
-      <line class="gridline" x1="40" y1="40" x2="40" y2="240"/>
-      <!-- gap wedge -->
-      <path class="gapwedge" d="M40,170 L860,60 L860,176 L40,176 Z" fill="var(--gap-fill)"/>
-      <!-- dividend line (rising) -->
-      <path class="drawline" d="M40,176 C 280,150 540,100 860,60" fill="none" stroke="var(--capital)" stroke-width="3" stroke-linecap="round"/>
-      <!-- labour line (flat/slightly down) -->
-      <path class="drawline l2" d="M40,170 C 300,172 560,178 860,176" fill="none" stroke="var(--labour)" stroke-width="3" stroke-linecap="round"/>
-      <text class="axis" x="40" y="258">2025</text>
-      <text class="axis" x="430" y="258" text-anchor="middle">2027–28</text>
-      <text class="axis" x="860" y="258" text-anchor="end">2030</text>
+    <svg viewBox="0 0 1120 300" width="100%" style="max-height:46vh" aria-label="A rising productivity dividend diverging from a flat labour share; the widening area between them is the distribution gap.">
+      <line class="gridline" x1="40" y1="60" x2="1090" y2="60"/><line class="gridline" x1="40" y1="150" x2="1090" y2="150"/><line class="gridline" x1="40" y1="240" x2="1090" y2="240"/>
+      <path id="sGap" d="M40,232 L1080,40 L1080,236 L40,236 Z" fill="var(--gap-fill)" opacity="0"/>
+      <path id="sDiv" d="M40,236 C 360,212 660,150 1080,40" fill="none" stroke="var(--capital)" stroke-width="3.4" stroke-linecap="round"/>
+      <path id="sLab" d="M40,232 C 360,236 660,240 1080,236" fill="none" stroke="var(--labour)" stroke-width="3.4" stroke-linecap="round"/>
+      <circle id="sDivDot" r="6" fill="var(--capital)" stroke="var(--paper)" stroke-width="2"/>
+      <text class="axis" x="40" y="262">2025</text><text class="axis" x="1080" y="262" text-anchor="end">2030</text>
     </svg>
+    <div class="scrolly-steps" style="margin-top:1rem;min-height:3.4em">
+      <p class="scrolly-cap" id="cap1">First, the dividend appears &mdash; a real $116bn windfall.</p>
+      <p class="scrolly-cap" id="cap2">But labour's share of those gains <b>does not move with it.</b></p>
+      <p class="scrolly-cap" id="cap3">The space between the lines <b>is the forecast.</b></p>
+    </div>
   </div>
-  <div class="byline">A mechanism-first forecast · Coasean policy lens · all figures sourced or tagged</div>
+  <div style="height:230vh"></div>
 </section>
 
-<!-- ============ THESIS PROSE ============ -->
+<!-- THESIS PROSE -->
 <section id="thesis-text">
-  <div class="col">
-    <div class="seclabel">00 — The thesis</div>
-    <p class="lead">Australia will get its AI productivity dividend. The Productivity Commission judges multifactor productivity gains <span class="src" data-cite="Productivity Commission 2025, Harnessing data and digital technology (interim)">above 2.3% likely over the coming decade — roughly $116 billion in additional GDP</span>. The contested question is not whether AI creates wealth, but who captures it.</p>
-    <p>This forecast argues that on current policy settings the dividend flows disproportionately to capital owners and to the high-skill labour that AI complements, opening a <em>distribution gap</em>: the wedge between the wealth AI generates and the share reaching the middle-skill workers whose tasks it automates. The gap is not inevitable. It is the product of one mechanism — automation reduces the labour share in value added <span class="src" data-cite="Acemoglu & Restrepo 2019, JEP 33(2)">(Acemoglu &amp; Restrepo 2019)</span> — interacting with a second that locks it in: a <em>concentration ratchet</em>, through which early-adopting, data-rich incumbents compound their advantage. Both are reversible by policy.</p>
-    <p>The horizon is 2025–2030: near enough to extrapolate credibly from current adoption data, far enough for structural change to register.</p>
-    <p class="pull">The dividend's existence is settled. Its distribution is the contingent, policy-sensitive variable — and it is measurable.</p>
+  <div class="col reveal">
+    <div class="seclabel">00 &mdash; The thesis</div>
+    <p class="lead">Australia will get its AI productivity dividend. The Productivity Commission judges multifactor productivity gains <span class="src" data-cite="Productivity Commission 2025, Harnessing data and digital technology (interim)">above 2.3% likely over the coming decade &mdash; roughly $116 billion in additional GDP</span>. The contested question is not whether AI creates wealth, but who captures it.</p>
+    <p>This forecast argues that on current policy settings the dividend flows disproportionately to capital owners and to the high-skill labour that AI complements, opening a <em>distribution gap</em>: the wedge between the wealth AI generates and the share reaching the middle-skill workers whose tasks it automates. The gap is not inevitable. It is the product of one mechanism &mdash; automation reduces the labour share in value added <span class="src" data-cite="Acemoglu & Restrepo 2019, JEP 33(2)">(Acemoglu &amp; Restrepo 2019)</span> &mdash; interacting with a second that locks it in: a <em>concentration ratchet</em>, through which early-adopting, data-rich incumbents compound their advantage. Both are reversible by policy.</p>
+    <p>The horizon is 2025&ndash;2030: near enough to extrapolate credibly from current adoption data, far enough for structural change to register.</p>
+    <p class="pull">The dividend's existence is settled. Its distribution is the contingent, policy-sensitive variable &mdash; and it is measurable.</p>
   </div>
 </section>
 
-<!-- ============ CHANNELS ============ -->
+<!-- CHANNELS -->
 <section id="channels">
-  <div class="col">
-    <div class="seclabel">01 — Four causal channels</div>
+  <div class="col reveal">
+    <div class="seclabel">01 &mdash; Four causal channels</div>
     <h2>How a capability becomes a distribution</h2>
-    <p>The dividend reaches workers — or doesn't — through four channels. The first three were the heart of the conventional account; the fourth, industry structure, is the one that turns a transient shock into a permanent gap.</p>
-
-    <h3>Channel 1 · Tasks — where exposure lands</h3>
-    <p>The dividend begins as a task story. Generative AI is competent at routine cognitive work — drafting, reconciling, classifying, retrieving — so exposure concentrates where those tasks cluster. Jobs and Skills Australia, scoring 998 occupations, finds <span class="src" data-cite="Jobs and Skills Australia 2025, Our Gen AI Transition">automation potential highest among middle-skill clerical roles at ANZSCO skill level 4 — General Clerks, Accounting Clerks, Bookkeepers — while higher-skill professionals skew toward augmentation</span>. The pattern follows the routine-task logic of <span class="src" data-cite="Autor, Levy & Murnane 2003, QJE 118(4)">Autor, Levy and Murnane (2003)</span>: codifiable, repetitive tasks are the substitutable ones.</p>
+    <p>The dividend reaches workers &mdash; or doesn't &mdash; through four channels. The first three were the heart of the conventional account; the fourth, industry structure, is the one that turns a transient shock into a permanent gap.</p>
+    <h3>Channel 1 &middot; Tasks &mdash; where exposure lands</h3>
+    <p>The dividend begins as a task story. Generative AI is competent at routine cognitive work &mdash; drafting, reconciling, classifying, retrieving &mdash; so exposure concentrates where those tasks cluster. Jobs and Skills Australia, scoring 998 occupations, finds <span class="src" data-cite="Jobs and Skills Australia 2025, Our Gen AI Transition">automation potential highest among middle-skill clerical roles at ANZSCO skill level 4 &mdash; General Clerks, Accounting Clerks, Bookkeepers &mdash; while higher-skill professionals skew toward augmentation</span>. The pattern follows the routine-task logic of <span class="src" data-cite="Autor, Levy & Murnane 2003, QJE 118(4)">Autor, Levy and Murnane (2003)</span>: codifiable, repetitive tasks are the substitutable ones.</p>
   </div>
 
-  <!-- exposure explorer -->
-  <div class="tool col" id="explorer">
-    <div class="tool-head">
-      <span class="tool-title">▶ Exposure explorer</span>
-      <span class="tool-sub">Select an occupation. Automation potential (red) vs augmentation potential (gold). Middle-skill clerical roles sit top-left of the displacement frontier; professionals and physical roles do not.</span>
-    </div>
+  <div class="tool col reveal" id="explorer">
+    <div class="tool-head"><span class="tool-title">&#9654; Exposure explorer</span><span class="tool-sub">Select an occupation. Automation potential (red) vs augmentation potential (gold). Middle-skill clerical roles sit at the displacement frontier; professionals and physical roles do not.</span></div>
     <div class="occ-grid" id="occGrid"></div>
-    <div class="occ-readout">
-      <div class="bar-row"><span>Automation</span><div class="bar-track"><div class="bar-fill auto" id="barAuto"></div></div><span id="valAuto">—</span></div>
-      <div class="bar-row"><span>Augmentation</span><div class="bar-track"><div class="bar-fill aug" id="barAug"></div></div><span id="valAug">—</span></div>
-    </div>
+    <div class="bar-row"><span>Automation</span><div class="bar-track"><div class="bar-fill auto" id="barAuto"></div></div><span id="valAuto">&mdash;</span></div>
+    <div class="bar-row"><span>Augmentation</span><div class="bar-track"><div class="bar-fill aug" id="barAug"></div></div><span id="valAug">&mdash;</span></div>
     <div class="occ-note" id="occNote"></div>
   </div>
 
-  <div class="col">
-    <p style="font-size:.92rem;color:var(--ink-soft)">International evidence agrees on the locus — the ILO's refined index places data-entry clerks near <span class="src" data-cite="Gmyrek, Berg & Bescond 2025, ILO Working Paper 140">0.70 mean exposure, accounting clerks near 0.64</span> — though the finding that higher-income jobs face greater exposure derives from <span class="asm" data-cite="US data, treated as a proxy for Australia">US data (Eloundou et al. 2024)</span>. Exposure is not socially neutral: women hold <span class="src" data-cite="ABS 2024, Labour Force / Census 2021">about 70% of clerical and administrative roles</span>, and General Clerks' automation potential alone touches an estimated 3.7% of employed women (JSA 2025). With roughly <span class="src" data-cite="ABS 2024, Labour Force">450,000 people employed in financial and insurance services</span> — a sector JSA ranks among the most exposed — the affected population is large in absolute terms, not marginal.</p>
-
-    <h3>Channel 2 · Wages — why the productivity–wage link bends</h3>
-    <p>Exposure becomes a wage story through the labour share. Because automation <em>always</em> reduces the labour share in value added and can depress labour demand even while raising productivity (Acemoglu &amp; Restrepo 2019), the dividend accrues first to capital and to complemented high-skill labour. That is the engine of the gap. Yet direction is not predetermined: <span class="src" data-cite="Brynjolfsson, Li & Raymond 2023, NBER WP 31161">generative AI raised the productivity of low-skill support workers by 14–35% while barely moving top performers</span> — a <em>compression</em> of the skill premium that inverts the historical skill-biased pattern. Whether wages polarise or compress depends on access, not capability. The decoupling is still latent: the producer-wage–productivity link <span class="src" data-cite="Productivity Commission 2023, Productivity growth and wages — a forensic look">'remains intact' for the 95% of workers outside mining and agriculture</span>, yet real wages already sit <span class="src" data-cite="ABS Wage Price Index 2025">around 6% below their mid-2020 peak</span> — the gap has somewhere to open from.</p>
-
-    <h3>Channel 3 · Employment — the displacement–reinstatement race</h3>
-    <p>Whether exposure becomes lost jobs depends on a race between displacement and <em>reinstatement</em> — the creation of new labour-demanding tasks (Acemoglu &amp; Restrepo 2019). Where reinstatement lags, the result is 'so-so technology': enough automation to displace workers, too little new work to re-absorb them. Crucially, in Australia this channel is still latent. Among firms making group retrenchments in 2024, <span class="src" data-cite="Jobs and Skills Australia 2025">only twelve cited generative AI or related technological change; entry-level ad shares have held stable since 2022 — 'large-scale job displacement is yet to emerge'</span>. The largest figure in circulation — <span class="asm" data-cite="Modelled potential ('may'); not a realised forecast">McKinsey's estimate that up to 1.3 million workers may need to transition by 2030</span> — is modelled potential, not prophecy.</p>
-
-    <h3>Channel 4 · Industry structure — the concentration ratchet</h3>
-    <p>The fourth channel turns a shock into a structural gap. AI adoption rises with firm size and data: among SMEs using generative AI, <span class="src" data-cite="OECD 2025, AI adoption by SMEs">only 29% deploy it in core activities, while large firms integrate it deeply</span>. Because data is the scarce complementary input, incumbents that capture the dividend first reinvest in data and model advantage, deepening a moat SMEs cannot cross — and the advantage compounds each period. The concentration is also spatial: <span class="src" data-cite="CSIRO & Tech Council of Australia 2023, Geography of Australia's digital industries">high-skill AI employment clusters heavily in Sydney and Melbourne</span>. As concentration rises, the labour share falls <em>structurally</em>. In financial services — the most exposed white-collar industry, and one where <span class="src" data-cite="APRA — prudential structure data on a concentrated banking sector">APRA already tracks structural concentration</span> — the dynamic is clearest: a handful of data-rich incumbents dominate, and AI raises the entry barrier further. This is why the gap, once open, does not self-correct.</p>
+  <div class="col reveal">
+    <p style="font-size:.92rem;color:var(--ink-soft)">International evidence agrees on the locus &mdash; the ILO's refined index places data-entry clerks near <span class="src" data-cite="Gmyrek, Berg & Bescond 2025, ILO Working Paper 140">0.70 mean exposure, accounting clerks near 0.64</span> &mdash; though the finding that higher-income jobs face greater exposure derives from <span class="asm" data-cite="US data, treated as a proxy for Australia">US data (Eloundou et al. 2024)</span>. Exposure is not socially neutral: women hold <span class="src" data-cite="ABS 2024, Labour Force / Census 2021">about 70% of clerical and administrative roles</span>, and General Clerks' automation potential alone touches an estimated 3.7% of employed women (JSA 2025). With roughly <span class="src" data-cite="ABS 2024, Labour Force">450,000 people employed in financial and insurance services</span> &mdash; a sector JSA ranks among the most exposed &mdash; the affected population is large in absolute terms, not marginal.</p>
+    <h3>Channel 2 &middot; Wages &mdash; why the productivity&ndash;wage link bends</h3>
+    <p>Exposure becomes a wage story through the labour share. Because automation <em>always</em> reduces the labour share in value added and can depress labour demand even while raising productivity (Acemoglu &amp; Restrepo 2019), the dividend accrues first to capital and to complemented high-skill labour. That is the engine of the gap. Yet direction is not predetermined: <span class="src" data-cite="Brynjolfsson, Li & Raymond 2023, NBER WP 31161">generative AI raised the productivity of low-skill support workers by 14&ndash;35% while barely moving top performers</span> &mdash; a <em>compression</em> of the skill premium that inverts the historical skill-biased pattern. Whether wages polarise or compress depends on access, not capability. The decoupling is still latent: the producer-wage&ndash;productivity link <span class="src" data-cite="Productivity Commission 2023, Productivity growth and wages &mdash; a forensic look">'remains intact' for the 95% of workers outside mining and agriculture</span>, yet real wages already sit <span class="src" data-cite="ABS Wage Price Index 2025">around 6% below their mid-2020 peak</span> &mdash; the gap has somewhere to open from.</p>
+    <h3>Channel 3 &middot; Employment &mdash; the displacement&ndash;reinstatement race</h3>
+    <p>Whether exposure becomes lost jobs depends on a race between displacement and <em>reinstatement</em> &mdash; the creation of new labour-demanding tasks (Acemoglu &amp; Restrepo 2019). Where reinstatement lags, the result is 'so-so technology': enough automation to displace workers, too little new work to re-absorb them. Crucially, in Australia this channel is still latent. Among firms making group retrenchments in 2024, <span class="src" data-cite="Jobs and Skills Australia 2025">only twelve cited generative AI or related technological change; entry-level ad shares have held stable since 2022 &mdash; 'large-scale job displacement is yet to emerge'</span>. The largest figure in circulation &mdash; <span class="asm" data-cite="Modelled potential ('may'); not a realised forecast">McKinsey's estimate that up to 1.3 million workers may need to transition by 2030</span> &mdash; is modelled potential, not prophecy.</p>
+    <h3>Channel 4 &middot; Industry structure &mdash; the concentration ratchet</h3>
+    <p>The fourth channel turns a shock into a structural gap. AI adoption rises with firm size and data: among SMEs using generative AI, <span class="src" data-cite="OECD 2025, AI adoption by SMEs">only 29% deploy it in core activities, while large firms integrate it deeply</span>. Because data is the scarce complementary input, incumbents that capture the dividend first reinvest in data and model advantage, deepening a moat SMEs cannot cross &mdash; and the advantage compounds each period. The concentration is also spatial: <span class="src" data-cite="CSIRO & Tech Council of Australia 2023, Geography of Australia's digital industries">high-skill AI employment clusters heavily in Sydney and Melbourne</span>. As concentration rises, the labour share falls <em>structurally</em>. In financial services &mdash; the most exposed white-collar industry, and one where <span class="src" data-cite="APRA &mdash; prudential structure data on a concentrated banking sector">APRA already tracks structural concentration</span> &mdash; the dynamic is clearest: a handful of data-rich incumbents dominate, and AI raises the entry barrier further. This is why the gap, once open, does not self-correct.</p>
   </div>
 </section>
 
-<!-- ============ RATCHET SIM ============ -->
+<!-- RATCHET -->
 <section id="ratchet">
-  <div class="col">
-    <div class="seclabel">02 — The signature mechanism</div>
+  <div class="col reveal">
+    <div class="seclabel">02 &mdash; The signature mechanism</div>
     <h2>The concentration ratchet</h2>
-    <p>The ratchet is the heart of this forecast. Watch the advantage compound: each year, data-rich incumbents convert the dividend into a deeper data moat, and SMEs fall further behind — unless a data-access right lets them keep pace. Run it both ways.</p>
+    <p>The ratchet is the heart of this forecast. Watch the advantage compound: each year, data-rich incumbents convert the dividend into a deeper data moat, and SMEs fall further behind &mdash; unless a data-access right lets them keep pace. Run it both ways.</p>
   </div>
-
-  <div class="tool col">
-    <div class="tool-head">
-      <span class="tool-title">▶ Ratchet simulation</span>
-      <span class="tool-sub">"AI capability index" of a large incumbent vs an SME, 2025–2030. The shaded area is the moat. Toggle the data-access right and re-run.</span>
-    </div>
+  <div class="tool col reveal">
+    <div class="tool-head"><span class="tool-title">&#9654; Ratchet simulation</span><span class="tool-sub">"AI capability index" of a large incumbent vs an SME, 2025&ndash;2030. The shaded area is the moat. Toggle the data-access right and re-run.</span></div>
     <div class="ratchet-controls">
-      <button class="btn" id="ratRun">▷ Run 2025–2030</button>
+      <button class="btn" id="ratRun">&#9654; Run 2025&ndash;2030</button>
       <button class="btn ghost" id="ratReset">Reset</button>
       <label class="toggle"><input type="checkbox" id="ratPolicy"> Data-access right ON</label>
       <span class="yearflag">Year <b id="ratYear">2025</b></span>
     </div>
-    <svg viewBox="0 0 880 300" width="100%" id="ratSvg" aria-label="Diverging capability lines for large firm and SME with a shaded moat between them.">
-      <line class="gridline" x1="46" y1="30" x2="860" y2="30"/>
-      <line class="gridline" x1="46" y1="120" x2="860" y2="120"/>
-      <line class="gridline" x1="46" y1="210" x2="860" y2="210"/>
-      <line class="gridline" x1="46" y1="260" x2="860" y2="260"/>
-      <text class="axis" x="42" y="34" text-anchor="end">high</text>
-      <text class="axis" x="42" y="262" text-anchor="end">low</text>
+    <svg viewBox="0 0 880 300" width="100%" id="ratSvg" aria-label="Diverging capability lines for a large firm and an SME with a shaded moat between them.">
+      <line class="gridline" x1="46" y1="30" x2="860" y2="30"/><line class="gridline" x1="46" y1="120" x2="860" y2="120"/><line class="gridline" x1="46" y1="210" x2="860" y2="210"/><line class="gridline" x1="46" y1="260" x2="860" y2="260"/>
+      <text class="axis" x="42" y="34" text-anchor="end">high</text><text class="axis" x="42" y="262" text-anchor="end">low</text>
       <path id="ratMoat" fill="var(--gap-fill)" d=""></path>
       <polyline id="ratLarge" fill="none" stroke="var(--capital)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" points=""></polyline>
       <polyline id="ratSme" fill="none" stroke="var(--signal)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" points=""></polyline>
       <g id="ratLabels"></g>
     </svg>
-    <div class="chart-cap" style="margin-top:.6rem">
-      <span class="swatch"><i style="border-top-color:var(--capital)"></i> Large incumbent</span>
-      <span class="swatch"><i style="border-top-color:var(--signal)"></i> SME</span>
-      <span class="swatch" style="color:var(--labour)">▨ the data moat</span>
-    </div>
-    <div class="occ-note" id="ratNote">Press <b>Run</b>. With the data-access right off, the incumbent's lead compounds — the ratchet. Turn it on and the moat narrows: the Coasean cure operates on the mechanism's input, not its symptom.</div>
+    <div class="chart-cap" style="margin-top:.6rem"><span class="swatch"><i style="border-top-color:var(--capital)"></i> Large incumbent</span><span class="swatch"><i style="border-top-color:var(--signal)"></i> SME</span><span class="swatch" style="color:var(--labour)">&#x2728; the data moat</span></div>
+    <div class="occ-note" id="ratNote">Press <b>Run</b>. With the data-access right off, the incumbent's lead compounds &mdash; the ratchet. Turn it on and the moat narrows: the Coasean cure operates on the mechanism's input, not its symptom.</div>
   </div>
 </section>
 
-<!-- ============ SCENARIOS / WARGAME ============ -->
+<!-- SCENARIOS + ENGINE -->
 <section id="scenarios">
-  <div class="col">
-    <div class="seclabel">03 — Three futures, calibrated</div>
-    <h2>2025–2030: a span, not a point</h2>
-    <p>These channels do not fix a single future; they define a span. Each scenario below is pinned to a sourced productivity anchor, with distribution outcomes that mix sourced data and tagged assumptions. Then move the levers yourself.</p>
-
+  <div class="col reveal">
+    <div class="seclabel">03 &mdash; Three futures, calibrated</div>
+    <h2>2025&ndash;2030: a span, not a point</h2>
+    <p>These channels do not fix a single future; they define a span. Each scenario below is pinned to a sourced productivity anchor, with distribution outcomes that mix sourced data and tagged assumptions. Then run the engine yourself.</p>
     <div class="scards">
-      <div class="scard base">
-        <span class="tag">Baseline</span><h4>Drift</h4>
-        <span class="num" style="color:var(--ink-soft)">+$116bn</span>
-        <span class="tag">GDP / decade · PC 2025</span>
-        <p>The dividend arrives, but the ratchet runs unchecked: labour share edges down from <span class="src" data-cite="Treasury 2017">~59%</span>; income Gini holds near <span class="src" data-cite="ABS 2022-23, Income & wealth inequality">0.307</span>; gains cluster in Sydney–Melbourne. <span class="asm" data-cite="Assumption — calibrated to JSA middle-skill exposure">Displacement magnitude = assumption.</span></p>
-      </div>
-      <div class="scard up">
-        <span class="tag">Upside</span><h4>Active Transition</h4>
-        <span class="num" style="color:var(--signal)">+$115bn/yr</span>
-        <span class="tag">fast adoption · TCA/Microsoft 2023</span>
-        <p>Reinstatement keeps pace (A&amp;R 2019); <span class="asm" data-cite="Reskilling effectiveness = assumption; AU evaluations are thin">outcome-tied reskilling re-absorbs displaced clerks</span>; a data-access right lets SMEs reach parity, jamming the ratchet. The labour share stabilises; the gap stays closed.</p>
-      </div>
-      <div class="scard down">
-        <span class="tag">Downside</span><h4>Concentration</h4>
-        <span class="num" style="color:var(--labour)">&lt;57%</span>
-        <span class="tag">labour share by 2028 · assumption</span>
-        <p>Productivity disappoints — nearer the <span class="src" data-cite="RBA 2025, ~0.7% medium-term productivity assumption">RBA's ~0.7%</span> — as 'so-so technology'. <span class="asm" data-cite="US industrial-robot elasticities (A&R 2020): −0.2pp employment, −0.42% wages — flagged proxy">Robot-style elasticities applied as a flagged proxy.</span> Concentration hardens; the gap self-reinforces.</p>
-      </div>
+      <div class="scard base"><span class="tag">Baseline</span><h4>Drift</h4><span class="num" style="color:var(--ink-soft)">+$116bn</span><span class="tag">GDP / decade &middot; PC 2025</span><p>The dividend arrives, but the ratchet runs unchecked: labour share edges down from <span class="src" data-cite="Treasury 2017">~59%</span>; income Gini holds near <span class="src" data-cite="ABS 2022-23, Income & wealth inequality">0.307</span>; gains cluster in Sydney&ndash;Melbourne. <span class="asm" data-cite="Assumption &mdash; calibrated to JSA middle-skill exposure">Displacement magnitude = assumption.</span></p></div>
+      <div class="scard up"><span class="tag">Upside</span><h4>Active Transition</h4><span class="num" style="color:var(--signal)">+$115bn/yr</span><span class="tag">fast adoption &middot; TCA/Microsoft 2023</span><p>Reinstatement keeps pace (A&amp;R 2019); <span class="asm" data-cite="Reskilling effectiveness = assumption; AU evaluations are thin">outcome-tied reskilling re-absorbs displaced clerks</span>; a data-access right lets SMEs reach parity, jamming the ratchet. The labour share stabilises; the gap stays closed.</p></div>
+      <div class="scard down"><span class="tag">Downside</span><h4>Concentration</h4><span class="num" style="color:var(--labour)">&lt;57%</span><span class="tag">labour share by 2028 &middot; assumption</span><p>Productivity disappoints &mdash; nearer the <span class="src" data-cite="RBA 2025, ~0.7% medium-term productivity assumption">RBA's ~0.7%</span> &mdash; as 'so-so technology'. <span class="asm" data-cite="US industrial-robot elasticities (A&R 2020): &minus;0.2pp employment, &minus;0.42% wages &mdash; flagged proxy">Robot-style elasticities applied as a flagged proxy.</span> Concentration hardens; the gap self-reinforces.</p></div>
     </div>
   </div>
 
-  <!-- WARGAME centrepiece -->
-  <div class="tool col" id="wargame">
-    <div class="tool-head">
-      <span class="tool-title">▶ Policy wargame — the centrepiece</span>
-      <span class="tool-sub">Set three levers and watch the labour-share trajectory move between the scenarios. The dashed line is the 57% benchmark: cross below it and the distribution gap is open.</span>
+  <!-- THE INSTRUMENT: allocation engine + levers + trajectory -->
+  <div class="tool dark col reveal" id="wargame">
+    <div class="tool-head"><span class="tool-title">&#9654; The dividend engine &mdash; where the $116bn lands</span><span class="tool-sub">Each particle is a slice of the productivity dividend, flowing to whoever captures it. Move the three policy levers and watch the streams re-route &mdash; and the labour-share trajectory respond.</span></div>
+
+    <div class="engine">
+      <canvas id="flow"></canvas>
+      <div class="src-node"><span class="amt">$116bn</span>AI PRODUCTIVITY DIVIDEND &rarr;</div>
+      <div class="bins">
+        <div class="bin cap"><div class="lab"><span>Capital owners</span><b id="pcCap">52%</b></div><div class="bt"><div class="bf" id="bfCap"></div></div><div class="amt" id="amCap">$60bn</div></div>
+        <div class="bin high"><div class="lab"><span>High-skill labour</span><b id="pcHigh">36%</b></div><div class="bt"><div class="bf" id="bfHigh"></div></div><div class="amt" id="amHigh">$42bn</div></div>
+        <div class="bin mid"><div class="lab"><span>Middle-skill labour</span><b id="pcMid">12%</b></div><div class="bt"><div class="bf" id="bfMid"></div></div><div class="amt" id="amMid">$14bn</div></div>
+      </div>
     </div>
-    <div class="game">
+    <div class="engine-foot">
+      <span class="scenario-badge" id="badge">&mdash; Drift &mdash;</span>
+      <span class="gapread" id="gapRead"></span>
+    </div>
+
+    <div class="instr">
       <div class="levers">
-        <div class="lever">
-          <label>Data-access right <b id="vD">50</b></label>
-          <input type="range" id="lD" min="0" max="100" value="50">
-          <div class="hint">Extends the Consumer Data Right → lowers the data moat.</div>
-        </div>
-        <div class="lever">
-          <label>Competition enforcement <b id="vC">50</b></label>
-          <input type="range" id="lC" min="0" max="100" value="50">
-          <div class="hint">Keeps AI-input markets contestable → prevents lock-in.</div>
-        </div>
-        <div class="lever">
-          <label>Outcome-tied reskilling <b id="vR">50</b></label>
-          <input type="range" id="lR" min="0" max="100" value="50">
-          <div class="hint">Accelerates reinstatement of displaced clerical workers.</div>
-        </div>
-        <div class="scenario-badge" id="badge">— Drift —</div>
+        <div class="lever"><label>Data-access right <b id="vD">50</b></label><input type="range" id="lD" min="0" max="100" value="50"><div class="hint">Extends the Consumer Data Right &mdash; lowers the data moat.</div></div>
+        <div class="lever"><label>Competition enforcement <b id="vC">50</b></label><input type="range" id="lC" min="0" max="100" value="50"><div class="hint">Keeps AI-input markets contestable &mdash; prevents lock-in.</div></div>
+        <div class="lever"><label>Outcome-tied reskilling <b id="vR">50</b></label><input type="range" id="lR" min="0" max="100" value="50"><div class="hint">Accelerates reinstatement of displaced clerical workers.</div></div>
         <div class="readouts">
-          <div class="ro"><div class="k">Labour share 2030</div><div class="v" id="roLS">—</div></div>
-          <div class="ro"><div class="k">Income Gini 2030</div><div class="v" id="roG">—</div></div>
-          <div class="ro"><div class="k">Net displacement</div><div class="v" id="roD">—<small> %</small></div></div>
-          <div class="ro"><div class="k">Productivity div.</div><div class="v" id="roP">—<small> %</small></div></div>
+          <div class="ro"><div class="k">Labour share 2030</div><div class="v" id="roLS">&mdash;</div></div>
+          <div class="ro"><div class="k">Income Gini 2030</div><div class="v" id="roG">&mdash;</div></div>
+          <div class="ro"><div class="k">Net displacement</div><div class="v" id="roD">&mdash;<small> %</small></div></div>
+          <div class="ro"><div class="k">Productivity div.</div><div class="v" id="roP">&mdash;<small> %</small></div></div>
         </div>
       </div>
-      <div>
-        <svg viewBox="0 0 560 320" width="100%" id="gameSvg" aria-label="Labour share trajectory 2025 to 2030 responding to policy levers, with a 57 percent benchmark line.">
-          <line class="gridline" x1="50" y1="30" x2="540" y2="30"/>
-          <line class="gridline" x1="50" y1="100" x2="540" y2="100"/>
-          <line class="gridline" x1="50" y1="170" x2="540" y2="170"/>
-          <line class="gridline" x1="50" y1="240" x2="540" y2="240"/>
-          <!-- y labels: map 54..60 -->
-          <text class="axis" x="46" y="33" text-anchor="end">60%</text>
-          <text class="axis" x="46" y="173" text-anchor="end">57%</text>
-          <text class="axis" x="46" y="243" text-anchor="end">55%</text>
-          <line class="benchline" id="benchLine" x1="50" y1="170" x2="540" y2="170"/>
-          <text class="axis" x="540" y="164" text-anchor="end" fill="var(--labour)">57% — gap opens below</text>
-          <polyline id="gameLine" fill="none" stroke="var(--labour)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" points=""></polyline>
-          <circle id="gameDot" r="5" fill="var(--labour)" stroke="var(--paper)" stroke-width="2" cx="0" cy="0"></circle>
-          <text class="axis" x="50" y="260">2025</text>
-          <text class="axis" x="540" y="260" text-anchor="end">2030</text>
+      <div class="gamewrap">
+        <svg viewBox="0 0 560 300" id="gameSvg" aria-label="Labour share trajectory 2025 to 2030 responding to the levers, with a 57 percent benchmark.">
+          <line class="gridline" x1="50" y1="30" x2="540" y2="30"/><line class="gridline" x1="50" y1="100" x2="540" y2="100"/><line class="gridline" x1="50" y1="170" x2="540" y2="170"/><line class="gridline" x1="50" y1="240" x2="540" y2="240"/>
+          <text class="axis" x="46" y="33" text-anchor="end">60%</text><text class="axis" x="46" y="173" text-anchor="end">57%</text><text class="axis" x="46" y="243" text-anchor="end">55%</text>
+          <line class="benchline" x1="50" y1="170" x2="540" y2="170"/>
+          <text class="axis" x="540" y="164" text-anchor="end" fill="var(--labour-glow)">57% &mdash; gap opens below</text>
+          <polyline id="gameLine" fill="none" stroke="var(--labour-glow)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" points=""></polyline>
+          <circle id="gameDot" r="5" fill="var(--labour-glow)" stroke="var(--ink-panel)" stroke-width="2"></circle>
+          <text class="axis" x="50" y="262">2025</text><text class="axis" x="540" y="262" text-anchor="end">2030</text>
         </svg>
-        <div class="occ-note" id="gameNote"></div>
+        <div class="gamenote" id="gameNote"></div>
       </div>
     </div>
   </div>
 
-  <div class="col">
-    <p>Read across the three, the difference is not the <em>size</em> of the dividend but its destination. Drift and Active Transition can post almost identical headline productivity; what separates them is whether the labour share holds near 59% or slides below 57% — the same dividend, opposite distributions. The wargame makes the point operationally: the trajectory is set less by how much AI <em>can</em> do than by whether policy keeps the data input contestable and reinstatement funded.</p>
-    <div class="bench">
-      <b>What would change this conclusion</b>
-      <ol>
-        <li>A labour share below ~57% <em>or</em> Gini above 0.31 by 2028 → the downside is realised (Treasury 2017; ABS 2022-23).</li>
-        <li>Visible net new middle-skill task creation in JSA's entry-level ad-share monitoring → the augmentation case holds.</li>
-        <li>MFP gains below ~0.5% — the PC's <span class="src" data-cite="Productivity Commission 2025">$26 billion floor</span> — would put the dividend itself, not merely its distribution, in doubt.</li>
-      </ol>
-    </div>
+  <div class="col reveal">
+    <p>Read across the three, the difference is not the <em>size</em> of the dividend but its destination. Drift and Active Transition can post almost identical headline productivity; what separates them is whether the labour share holds near 59% or slides below 57% &mdash; the same dividend, opposite distributions. The engine makes the point operationally: the trajectory is set less by how much AI <em>can</em> do than by whether policy keeps the data input contestable and reinstatement funded.</p>
+    <div class="bench"><b>What would change this conclusion</b><ol>
+      <li>A labour share below ~57% <em>or</em> Gini above 0.31 by 2028 &mdash; the downside is realised (Treasury 2017; ABS 2022-23).</li>
+      <li>Visible net new middle-skill task creation in JSA's entry-level ad-share monitoring &mdash; the augmentation case holds.</li>
+      <li>MFP gains below ~0.5% &mdash; the PC's <span class="src" data-cite="Productivity Commission 2025">$26 billion floor</span> &mdash; would put the dividend itself, not merely its distribution, in doubt.</li>
+    </ol></div>
   </div>
 </section>
 
-<!-- ============ PLAYBOOK ============ -->
+<!-- PLAYBOOK -->
 <section id="playbook">
-  <div class="col">
-    <div class="seclabel">04 — The policy playbook</div>
+  <div class="col reveal">
+    <div class="seclabel">04 &mdash; The policy playbook</div>
     <h2>Assign the right, don't redistribute the dividend</h2>
-    <p>The problem is distributional, but the classical-liberal response is institutional, not redistributive. <span class="src" data-cite="Coase 1960, The Problem of Social Cost, JLE 3">Coase (1960) showed that where property rights are clearly assigned and transaction costs are low, externalities resolve through bargaining rather than transfers.</span> Applied here, the gap is best addressed by assigning rights over the ratchet's key input — data — and by keeping AI-input markets contestable, rather than by taxing the dividend. This also aligns with the Productivity Commission's blueprint, which treats <span class="src" data-cite="Productivity Commission 2025">AI-specific regulation as a last resort</span>.</p>
+    <p>The problem is distributional, but the classical-liberal response is institutional, not redistributive. <span class="src" data-cite="Coase 1960, The Problem of Social Cost, JLE 3">Coase (1960) showed that where property rights are clearly assigned and transaction costs are low, externalities resolve through bargaining rather than transfers.</span> Applied here, the gap is best addressed by assigning rights over the ratchet's key input &mdash; data &mdash; and by keeping AI-input markets contestable, rather than by taxing the dividend. This also aligns with the Productivity Commission's blueprint, which treats <span class="src" data-cite="Productivity Commission 2025">AI-specific regulation as a last resort</span>.</p>
     <p>Click a channel to see the lever that targets it.</p>
     <div class="matrix" id="matrix">
-      <div class="mcell on" data-k="data">Data-access right<br><small>→ industry structure</small></div>
-      <div class="mcell" data-k="comp">Competition enforce.<br><small>→ structure / wages</small></div>
-      <div class="mcell" data-k="skill">Outcome-tied reskilling<br><small>→ tasks / employment</small></div>
-      <div class="mcell" data-k="levy">No AI levy<br><small>→ excluded by design</small></div>
+      <div class="mcell on" data-k="data">Data-access right<br><small>&rarr; industry structure</small></div>
+      <div class="mcell" data-k="comp">Competition enforce.<br><small>&rarr; structure / wages</small></div>
+      <div class="mcell" data-k="skill">Outcome-tied reskilling<br><small>&rarr; tasks / employment</small></div>
+      <div class="mcell" data-k="levy">No AI levy<br><small>&rarr; excluded by design</small></div>
     </div>
     <div class="mdetail" id="mDetail"></div>
-
-    <p style="margin-top:1.8rem">Three risks attach, each with a real mitigation, not a restated problem. A data-access right could raise privacy and transaction costs — the mitigation is <span class="src" data-cite="Berg 2018, The Classical Liberal Case for Privacy">tiered, portable consent rather than blanket disclosure</span>. Competition intervention could itself become a productivity drag — the mitigation is an ex-post, last-resort posture (PC 2025) rather than ex-ante prohibition. And reskilling money can be spent without effect — the mitigation is funding released against re-employment outcomes, monitored by JSA, precisely because Australian effectiveness data is thin.</p>
-    <p>The political economy explains the inertia. Incumbents have <em>concentrated</em> incentives to resist data-access reform; the SMEs and displaced workers who would benefit are <em>diffuse</em> and unorganised — the classic collective-action asymmetry. That asymmetry has an equity dimension: with women holding around 70% of the exposed clerical roles (ABS 2024), the cost of inaction falls unevenly. The Commonwealth Bank's early-2026 workforce repositioning — a staff-redeployment program announced alongside AI-driven redundancies — shows the ratchet operating in real time.</p>
+    <p style="margin-top:1.8rem">Three risks attach, each with a real mitigation, not a restated problem. A data-access right could raise privacy and transaction costs &mdash; the mitigation is <span class="src" data-cite="Berg 2018, The Classical Liberal Case for Privacy">tiered, portable consent rather than blanket disclosure</span>. Competition intervention could itself become a productivity drag &mdash; the mitigation is an ex-post, last-resort posture (PC 2025) rather than ex-ante prohibition. And reskilling money can be spent without effect &mdash; the mitigation is funding released against re-employment outcomes, monitored by JSA, precisely because Australian effectiveness data is thin.</p>
+    <p>The political economy explains the inertia. Incumbents have <em>concentrated</em> incentives to resist data-access reform; the SMEs and displaced workers who would benefit are <em>diffuse</em> and unorganised &mdash; the classic collective-action asymmetry. That asymmetry has an equity dimension: with women holding around 70% of the exposed clerical roles (ABS 2024), the cost of inaction falls unevenly. The Commonwealth Bank's early-2026 workforce repositioning &mdash; a staff-redeployment program announced alongside AI-driven redundancies &mdash; shows the ratchet operating in real time.</p>
     <p class="pull">Tax the dividend and you fight the symptom every year. Assign the data right once and you slow the ratchet that produces it.</p>
   </div>
 </section>
 
-<!-- ============ METHODS ============ -->
+<!-- METHODS -->
 <section id="methods">
-  <div class="col">
-    <div class="seclabel">05 — Methods, data &amp; limits</div>
+  <div class="col reveal">
+    <div class="seclabel">05 &mdash; Methods, data &amp; limits</div>
     <h2>How this was built</h2>
-    <p>This forecast extrapolates from current adoption and exposure data rather than predicting discrete events, in the spirit of scenario 'wargaming'. Throughout, figures are tagged: a <span class="src" data-cite="Sourced to a named study or official dataset">solid underline marks a sourced number</span>; a <span class="asm" data-cite="An explicit, calibrated assumption — see Methods">dotted underline marks an assumption</span>. Several limitations are material and disclosed below.</p>
+    <p>This forecast extrapolates from current adoption and exposure data rather than predicting discrete events, in the spirit of scenario 'wargaming'. Throughout, figures are tagged: a <span class="src" data-cite="Sourced to a named study or official dataset">solid underline marks a sourced number</span>; a <span class="asm" data-cite="An explicit, calibrated assumption &mdash; see Methods">dotted underline marks an assumption</span>. Several limitations are material and disclosed below.</p>
     <div class="meta-grid" style="font-size:.9rem;color:var(--ink-soft)">
       <p>JSA exposure scores are point-in-time <em>potential</em> estimates, not forecasts, and its CGE modelling is described as illustrative; no single scalar exposure score exists for financial services as an industry, so it is cited directionally.</p>
-      <p>The latest official Gini is 2022-23 (0.307), because the ABS Survey of Income and Housing 2023–24 will not be released.</p>
-      <p>Australian job-polarisation evidence is mixed — strong in the 1980s–90s (Coelli &amp; Borland 2016) but weak thereafter (Wilkins &amp; Wooden 2014) — so the US polarisation narrative is not assumed to transfer.</p>
-      <p>The Acemoglu–Restrepo robot elasticities are US industrial-robot estimates, used here as a flagged proxy. SME-vs-large adoption rates diverge by an order of magnitude across surveys and are treated as sensitivity-tested assumptions.</p>
+      <p>The latest official Gini is 2022-23 (0.307), because the ABS Survey of Income and Housing 2023&ndash;24 will not be released.</p>
+      <p>Australian job-polarisation evidence is mixed &mdash; strong in the 1980s&ndash;90s (Coelli &amp; Borland 2016) but weak thereafter (Wilkins &amp; Wooden 2014) &mdash; so the US polarisation narrative is not assumed to transfer.</p>
+      <p>The Acemoglu&ndash;Restrepo robot elasticities are US industrial-robot estimates, used here as a flagged proxy. SME-vs-large adoption rates diverge across surveys and are treated as sensitivity-tested assumptions.</p>
       <p>Many headline figures use 'could' or 'may' (PC, Tech Council, McKinsey) and are treated as modelled potential, said so in-text.</p>
       <p><b style="color:var(--ink)">AI-tool disclosure.</b> AI was used to structure, source-check and pressure-test the argument and to build the interactive components. The economic reasoning, scenario design and policy logic are the author's own.</p>
     </div>
-
     <h3>References</h3>
     <ul class="refs">
       <li><b>ABS</b> (2023) <i>Has worker compensation reflected labour productivity growth?</i> Australian Bureau of Statistics.</li>
       <li><b>ABS</b> (2024) <i>Labour Force, Australia</i> / Census 2021. Australian Bureau of Statistics.</li>
       <li><b>ABS</b> (2022-23) <i>Income and wealth inequality</i>; (2025) <i>Wage Price Index</i>. Australian Bureau of Statistics.</li>
-      <li><b>Acemoglu, D &amp; Restrepo, P</b> (2019) 'Automation and new tasks', <i>Journal of Economic Perspectives</i> 33(2):3–30.</li>
-      <li><b>Acemoglu, D &amp; Restrepo, P</b> (2020) 'Robots and jobs', <i>Journal of Political Economy</i> 128(6):2188–2244.</li>
-      <li><b>Autor, D, Levy, F &amp; Murnane, R</b> (2003) 'The skill content of recent technological change', <i>QJE</i> 118(4):1279–1333.</li>
+      <li><b>Acemoglu, D &amp; Restrepo, P</b> (2019) 'Automation and new tasks', <i>Journal of Economic Perspectives</i> 33(2):3&ndash;30.</li>
+      <li><b>Acemoglu, D &amp; Restrepo, P</b> (2020) 'Robots and jobs', <i>Journal of Political Economy</i> 128(6):2188&ndash;2244.</li>
+      <li><b>Autor, D, Levy, F &amp; Murnane, R</b> (2003) 'The skill content of recent technological change', <i>QJE</i> 118(4):1279&ndash;1333.</li>
       <li><b>Berg, C</b> (2018) <i>The Classical Liberal Case for Privacy in a World of Surveillance</i>. Palgrave Macmillan.</li>
       <li><b>Brynjolfsson, E, Li, D &amp; Raymond, L</b> (2023) <i>Generative AI at work</i>, NBER Working Paper 31161.</li>
-      <li><b>Coase, R</b> (1960) 'The problem of social cost', <i>Journal of Law and Economics</i> 3:1–44.</li>
-      <li><b>Coelli, M &amp; Borland, J</b> (2016) 'Job polarisation and earnings inequality in Australia', <i>Economic Record</i> 92(296):1–27.</li>
+      <li><b>Coase, R</b> (1960) 'The problem of social cost', <i>Journal of Law and Economics</i> 3:1&ndash;44.</li>
+      <li><b>Coelli, M &amp; Borland, J</b> (2016) 'Job polarisation and earnings inequality in Australia', <i>Economic Record</i> 92(296):1&ndash;27.</li>
       <li><b>CSIRO &amp; Tech Council of Australia</b> (2023) <i>The geography of Australia's digital industries</i>.</li>
-      <li><b>Eloundou, T, Manning, S, Mishkin, P &amp; Rock, D</b> (2024) 'GPTs are GPTs', <i>Science</i> 384(6702):1306–1308.</li>
+      <li><b>Eloundou, T, Manning, S, Mishkin, P &amp; Rock, D</b> (2024) 'GPTs are GPTs', <i>Science</i> 384(6702):1306&ndash;1308.</li>
       <li><b>Gmyrek, P, Berg, J &amp; Bescond, D</b> (2025) <i>Generative AI and jobs: a refined global index of occupational exposure</i>, ILO Working Paper 140.</li>
       <li><b>Jobs and Skills Australia</b> (2025) <i>Our Gen AI Transition: Implications for Work and Skills</i>. Canberra.</li>
       <li><b>McKinsey &amp; Company</b> (2023) <i>Generative AI and the future of work in Australia</i>.</li>
       <li><b>OECD</b> (2025) <i>AI adoption by small and medium-sized enterprises</i>.</li>
-      <li><b>Productivity Commission</b> (2023) <i>Productivity growth and wages — a forensic look</i>; (2025) <i>Harnessing data and digital technology</i> (interim).</li>
+      <li><b>Productivity Commission</b> (2023) <i>Productivity growth and wages &mdash; a forensic look</i>; (2025) <i>Harnessing data and digital technology</i> (interim).</li>
       <li><b>Reserve Bank of Australia</b> (2025) Productivity and the medium-term outlook.</li>
       <li><b>Tech Council of Australia &amp; Microsoft</b> (2023) <i>Australia's Generative AI Opportunity</i>.</li>
       <li><b>Treasury</b> (2017) <i>Australian productivity trends and the effect of structural change</i>; <i>Intergenerational Report</i> (2023).</li>
@@ -487,206 +446,183 @@
   </div>
 </section>
 
-<footer>
-  ECON1626 · Economics of AI · RMIT — An interactive forecast · Built for GitHub Pages · Hover any underlined figure for its source
-</footer>
-
+<footer>ECON1626 &middot; Economics of AI &middot; RMIT &mdash; An interactive forecast &middot; Built for GitHub Pages &middot; Hover any underlined figure for its source</footer>
 </main>
 
 <script>
-/* ============================================================
-   1. EXPOSURE EXPLORER  — JSA/ILO-informed illustrative scores
-   ============================================================ */
-const occ = [
-  {n:"Data Entry Clerks",   a:.70, g:.30, lvl:4, note:"ILO WP140 places data-entry near 0.70 mean exposure — the most automatable cognitive role."},
-  {n:"Accounting Clerks",   a:.64, g:.40, lvl:4, note:"Projected among the largest employment losses by JSA's CGE modelling; female-dominated."},
-  {n:"General Clerks",      a:.62, g:.45, lvl:4, note:"JSA flags the highest automation potential at skill level 4; touches ~3.7% of employed women."},
-  {n:"Bank Workers",        a:.58, g:.42, lvl:4, note:"Financial & insurance services is among the most exposed industries (directional)."},
-  {n:"Receptionists",       a:.55, g:.38, lvl:4, note:"Routine information-handling tasks; high automation, moderate augmentation."},
-  {n:"Accountants",         a:.28, g:.66, lvl:1, note:"Skill level 1 — AI augments rather than substitutes; judgment tasks dominate."},
-  {n:"Registered Nurses",   a:.18, g:.39, lvl:1, note:"Indeed estimates GenAI can perform ~39% of nursing skills — care work resists automation."},
-  {n:"Drivers",             a:.12, g:.29, lvl:7, note:"Indeed: ~29% of skills exposed — physical, non-routine tasks are least affected."},
+/* ---------- EXPOSURE EXPLORER ---------- */
+const occ=[
+ {n:"Data Entry Clerks",a:.70,g:.30,lvl:4,note:"ILO WP140 places data-entry near 0.70 mean exposure &mdash; the most automatable cognitive role."},
+ {n:"Accounting Clerks",a:.64,g:.40,lvl:4,note:"Projected among the largest employment losses by JSA's CGE modelling; female-dominated."},
+ {n:"General Clerks",a:.62,g:.45,lvl:4,note:"JSA flags the highest automation potential at skill level 4; touches ~3.7% of employed women."},
+ {n:"Bank Workers",a:.58,g:.42,lvl:4,note:"Financial & insurance services is among the most exposed industries (directional)."},
+ {n:"Receptionists",a:.55,g:.38,lvl:4,note:"Routine information-handling tasks; high automation, moderate augmentation."},
+ {n:"Accountants",a:.28,g:.66,lvl:1,note:"Skill level 1 &mdash; AI augments rather than substitutes; judgment tasks dominate."},
+ {n:"Registered Nurses",a:.18,g:.39,lvl:1,note:"Indeed estimates GenAI can perform ~39% of nursing skills &mdash; care work resists automation."},
+ {n:"Drivers",a:.12,g:.29,lvl:7,note:"Indeed: ~29% of skills exposed &mdash; physical, non-routine tasks are least affected."}
 ];
 const occGrid=document.getElementById('occGrid');
-occ.forEach((o,i)=>{
-  const b=document.createElement('button');
-  b.className='occ-btn'+(i===2?' on':''); b.textContent=o.n; b.dataset.i=i;
-  b.onclick=()=>selectOcc(i,b); occGrid.appendChild(b);
-});
-function selectOcc(i,btn){
-  document.querySelectorAll('.occ-btn').forEach(x=>x.classList.remove('on'));
-  btn.classList.add('on');
-  const o=occ[i];
-  document.getElementById('barAuto').style.width=(o.a*100)+'%';
-  document.getElementById('barAug').style.width=(o.g*100)+'%';
-  document.getElementById('valAuto').textContent=o.a.toFixed(2);
-  document.getElementById('valAug').textContent=o.g.toFixed(2);
-  document.getElementById('occNote').innerHTML='<b style="font-family:var(--mono);color:var(--ink)">ANZSCO level '+o.lvl+'.</b> '+o.note;
-}
-selectOcc(2,occGrid.children[2]);
+occ.forEach((o,i)=>{const b=document.createElement('button');b.className='occ-btn'+(i===2?' on':'');b.textContent=o.n;b.onclick=()=>selOcc(i,b);occGrid.appendChild(b);});
+function selOcc(i,btn){document.querySelectorAll('.occ-btn').forEach(x=>x.classList.remove('on'));btn.classList.add('on');const o=occ[i];
+ document.getElementById('barAuto').style.width=(o.a*100)+'%';document.getElementById('barAug').style.width=(o.g*100)+'%';
+ document.getElementById('valAuto').textContent=o.a.toFixed(2);document.getElementById('valAug').textContent=o.g.toFixed(2);
+ document.getElementById('occNote').innerHTML='<b style="font-family:var(--mono);color:var(--ink)">ANZSCO level '+o.lvl+'.</b> '+o.note;}
+selOcc(2,occGrid.children[2]);
 
-/* ============================================================
-   2. CONCENTRATION RATCHET SIMULATION
-   ============================================================ */
+/* ---------- SHARED LEVER MODEL ---------- */
+const lD=document.getElementById('lD'),lC=document.getElementById('lC'),lR=document.getElementById('lR');
+function model(){
+ const d=+lD.value/100,c=+lC.value/100,r=+lR.value/100;
+ const rc=0.6*d+0.4*c, adopt=0.5*d+0.5*c;
+ const ls2030=56.0+3.6*rc, gini2030=0.332-0.027*rc;
+ const grossDisp=16+12*(1-rc), netDisp=grossDisp*(1-0.65*r), prod=8+12*adopt;
+ const overall=(rc+r+adopt)/3;
+ // dividend split
+ let mid=0.12+0.22*rc+0.04*r, cap=0.52-0.18*rc-0.02*r; let high=1-mid-cap;
+ return {d,c,r,rc,ls2030,gini2030,netDisp,prod,overall,split:{cap,high,mid}};
+}
+
+/* ---------- DIVIDEND ALLOCATION ENGINE (canvas particles) ---------- */
+const cv=document.getElementById('flow'),ctx=cv.getContext('2d');
+let W=0,H=0,DPR=Math.min(window.devicePixelRatio||1,2);
+function sizeCanvas(){const r=cv.getBoundingClientRect();W=r.width;H=r.height;cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);}
+const COL={cap:'#e6b24e',high:'#6fae9f',mid:'#e2683f'};
+let parts=[],spawnAcc=0,emaShown={cap:.52,high:.36,mid:.12},engineOn=false;
+function dest(){const x=W*0.62; return {cap:{x,y:H*0.18},high:{x,y:H*0.5},mid:{x,y:H*0.82}};}
+function spawn(){const s=model().split;const r=Math.random();let k=r<s.cap?'cap':(r<s.cap+s.high?'high':'mid');
+ const D=dest()[k];const sx=W*0.16,sy=H*0.5;
+ parts.push({k,t:0,dur:0.9+Math.random()*0.6,sx,sy,cx:W*0.4,cy:(sy+D.y)/2+(Math.random()*40-20),ex:D.x,ey:D.y+(Math.random()*22-11),sz:1.6+Math.random()*1.8});}
+function qb(a,b,c,t){return (1-t)*(1-t)*a+2*(1-t)*t*b+t*t*c;}
+let last=performance.now();
+function frame(now){const dt=Math.min((now-last)/1000,0.05);last=now;requestAnimationFrame(frame);
+ if(!engineOn){return;}
+ ctx.clearRect(0,0,W,H);
+ // guide streams
+ const D=dest();ctx.lineWidth=1;
+ ['cap','high','mid'].forEach(k=>{ctx.strokeStyle='rgba(255,255,255,0.05)';ctx.beginPath();ctx.moveTo(W*0.16,H*0.5);ctx.quadraticCurveTo(W*0.4,(H*0.5+D[k].y)/2,D[k].x,D[k].y);ctx.stroke();});
+ // source glow
+ const g=ctx.createRadialGradient(W*0.16,H*0.5,2,W*0.16,H*0.5,26);g.addColorStop(0,'rgba(230,178,78,.9)');g.addColorStop(1,'rgba(230,178,78,0)');
+ ctx.fillStyle=g;ctx.beginPath();ctx.arc(W*0.16,H*0.5,26,0,7);ctx.fill();
+ spawnAcc+=dt;const rate=0.028;while(spawnAcc>rate){spawnAcc-=rate;if(parts.length<260)spawn();}
+ for(let i=parts.length-1;i>=0;i--){const p=parts[i];p.t+=dt/p.dur;
+  if(p.t>=1){parts.splice(i,1);continue;}
+  const x=qb(p.sx,p.cx,p.ex,p.t),y=qb(p.sy,p.cy,p.ey,p.t);
+  ctx.shadowBlur=8;ctx.shadowColor=COL[p.k];ctx.fillStyle=COL[p.k];
+  ctx.globalAlpha=p.t<0.1?p.t*10:(p.t>0.9?(1-p.t)*10:1);
+  ctx.beginPath();ctx.arc(x,y,p.sz,0,7);ctx.fill();}
+ ctx.shadowBlur=0;ctx.globalAlpha=1;
+}
+function updateBins(){const s=model().split;
+ emaShown.cap+=(s.cap-emaShown.cap)*0.15;emaShown.high+=(s.high-emaShown.high)*0.15;emaShown.mid+=(s.mid-emaShown.mid)*0.15;
+ const set=(pc,bf,am,val)=>{document.getElementById(pc).textContent=Math.round(val*100)+'%';document.getElementById(bf).style.width=(val*100)+'%';document.getElementById(am).textContent='$'+Math.round(val*116)+'bn';};
+ set('pcCap','bfCap','amCap',s.cap);set('pcHigh','bfHigh','amHigh',s.high);set('pcMid','bfMid','amMid',s.mid);
+ const short=(1/3 - s.mid)*116;const gr=document.getElementById('gapRead');
+ if(short>0.5){gr.innerHTML="THE DISTRIBUTION GAP &nbsp;<b style='color:var(--labour-glow)'>&#8595; $"+Math.round(short)+"bn</b> below an equal share to middle-skill labour";}
+ else{gr.innerHTML="<b style='color:var(--signal-glow)'>Gap closed</b> &mdash; middle-skill labour reaches an equal share of the dividend";}
+}
+
+/* ---------- TRAJECTORY + READOUTS ---------- */
 const years=[2025,2026,2027,2028,2029,2030];
-const X0=46, X1=860, Y0=30, Y1=260;
-const xAt=i=>X0+(X1-X0)*(i/(years.length-1));
-const yAt=v=>Y1-(Y1-Y0)*v;                       // v in 0..1
-const ratLarge=document.getElementById('ratLarge'),
-      ratSme=document.getElementById('ratSme'),
-      ratMoat=document.getElementById('ratMoat'),
-      ratLabels=document.getElementById('ratLabels'),
-      ratYearEl=document.getElementById('ratYear');
-let ratStep=0, ratTimer=null;
-function ratSeries(policy){
-  let L=.32, S=.28; const Ls=[L], Ss=[S];
-  for(let k=1;k<years.length;k++){
-    L=Math.min(.96, L*1.20);                       // incumbent compounds ~20%/yr
-    const smeRate = policy ? 1.18 : 1.06;          // data-access lets SME nearly match
-    S=Math.min(.96, S*smeRate);
-    Ls.push(L); Ss.push(S);
-  }
-  return {Ls,Ss};
+const GX0=50,GX1=540,GY0=30,GY1=240;
+const lsY=v=>GY0+(GY1-GY0)*((60-v)/(60-55));
+const gx=i=>GX0+(GX1-GX0)*(i/(years.length-1));
+function drawAll(){
+ const m=model();
+ document.getElementById('vD').textContent=lD.value;document.getElementById('vC').textContent=lC.value;document.getElementById('vR').textContent=lR.value;
+ // trajectory
+ const start=59.0,pts=[];for(let i=0;i<years.length;i++){const t=i/(years.length-1),e=t*t*(3-2*t),v=start+(m.ls2030-start)*e;pts.push([gx(i),lsY(v)]);}
+ document.getElementById('gameLine').setAttribute('points',pts.map(p=>p[0]+','+p[1]).join(' '));
+ const end=pts[pts.length-1];const dot=document.getElementById('gameDot');dot.setAttribute('cx',end[0]);dot.setAttribute('cy',end[1]);
+ const open=m.ls2030<57;const col=open?'var(--labour-glow)':(m.ls2030>58.6?'var(--signal-glow)':'#d9cdb6');
+ document.getElementById('gameLine').setAttribute('stroke',col);dot.setAttribute('fill',col);
+ const roLS=document.getElementById('roLS');roLS.textContent=m.ls2030.toFixed(1)+'%';roLS.style.color=col;
+ const roG=document.getElementById('roG');roG.textContent=m.gini2030.toFixed(3);roG.style.color=m.gini2030>0.31?'var(--labour-glow)':'#ece1cd';
+ document.getElementById('roD').innerHTML=m.netDisp.toFixed(0)+'<small> %</small>';
+ document.getElementById('roP').innerHTML='+'+m.prod.toFixed(0)+'<small> %</small>';
+ // badge
+ const badge=document.getElementById('badge');let label,bg,bc,tc;
+ if(m.overall<0.33){label='&mdash; Concentration (downside) &mdash;';bg='rgba(226,104,63,.14)';bc='var(--labour-glow)';tc='var(--labour-glow)';}
+ else if(m.overall>0.67){label='&mdash; Active Transition (upside) &mdash;';bg='rgba(111,174,159,.14)';bc='var(--signal-glow)';tc='var(--signal-glow)';}
+ else{label='&mdash; Drift (baseline) &mdash;';bg='rgba(255,255,255,.05)';bc='#3a352a';tc='#cdbf9f';}
+ badge.textContent=label;badge.style.background=bg;badge.style.borderColor=bc;badge.style.color=tc;
+ document.getElementById('gameNote').innerHTML=open
+  ?"Labour share falls below 57% &mdash; <b style='color:var(--labour-glow)'>the distribution gap is open.</b> The dividend exists, but it is not reaching middle-skill labour."
+  :(m.ls2030>58.6?"Levers high: reinstatement and data access hold the labour share up &mdash; <b style='color:var(--signal-glow)'>the gap stays closed.</b>"
+   :"A drifting path: the dividend arrives, but distribution slides without decisively crossing the benchmark.");
+ updateBins();
 }
-function drawRatchet(upto){
-  const policy=document.getElementById('ratPolicy').checked;
-  const {Ls,Ss}=ratSeries(policy);
-  const lp=[], sp=[];
-  for(let i=0;i<=upto;i++){ lp.push(xAt(i)+','+yAt(Ls[i])); sp.push(xAt(i)+','+yAt(Ss[i])); }
-  ratLarge.setAttribute('points',lp.join(' '));
-  ratSme.setAttribute('points',sp.join(' '));
-  // moat polygon (large over sme)
-  let top=[], bot=[];
-  for(let i=0;i<=upto;i++){ top.push(xAt(i)+','+yAt(Ls[i])); }
-  for(let i=upto;i>=0;i--){ bot.push(xAt(i)+','+yAt(Ss[i])); }
-  ratMoat.setAttribute('d','M'+top.join(' L')+' L'+bot.join(' L')+' Z');
-  ratYearEl.textContent=years[upto];
-  // end labels
-  ratLabels.innerHTML='';
-  if(upto>0){
-    const gap=((Ls[upto]-Ss[upto])*100).toFixed(0);
-    const t=document.createElementNS('http://www.w3.org/2000/svg','text');
-    t.setAttribute('class','axis'); t.setAttribute('x',xAt(upto)-6); t.setAttribute('y',yAt((Ls[upto]+Ss[upto])/2));
-    t.setAttribute('text-anchor','end'); t.setAttribute('fill','var(--labour)'); t.style.fontSize='10px';
-    t.textContent='moat '+gap+'pts'; ratLabels.appendChild(t);
-  }
-}
-function ratRun(){
-  clearInterval(ratTimer); ratStep=0; drawRatchet(0);
-  ratTimer=setInterval(()=>{
-    ratStep++; drawRatchet(ratStep);
-    if(ratStep>=years.length-1){
-      clearInterval(ratTimer);
-      const policy=document.getElementById('ratPolicy').checked;
-      document.getElementById('ratNote').innerHTML = policy
-        ? "<b style='color:var(--signal)'>Data-access right ON.</b> The moat narrows sharply — SMEs compound near the incumbent's rate. The ratchet is jammed at its input. This is the Coasean cure."
-        : "<b style='color:var(--labour)'>Status quo.</b> The incumbent's lead widens every year as data advantage compounds. Nothing in the mechanism reverses it — which is why the distribution gap, once open, persists.";
-    }
-  },520);
-}
+[lD,lC,lR].forEach(el=>el.addEventListener('input',drawAll));
+
+/* start engine when in view */
+sizeCanvas();window.addEventListener('resize',()=>{sizeCanvas();});
+new IntersectionObserver((e)=>{e.forEach(x=>{engineOn=x.isIntersecting;if(engineOn){last=performance.now();}});},{threshold:0.1}).observe(cv);
+requestAnimationFrame(frame);drawAll();
+
+/* ---------- RATCHET SIM ---------- */
+const X0=46,X1=860,Y0=30,Y1=260,xR=i=>X0+(X1-X0)*(i/(years.length-1)),yR=v=>Y1-(Y1-Y0)*v;
+const ratLarge=document.getElementById('ratLarge'),ratSme=document.getElementById('ratSme'),ratMoat=document.getElementById('ratMoat'),ratLabels=document.getElementById('ratLabels'),ratYearEl=document.getElementById('ratYear');
+let ratStep=0,ratTimer=null;
+function ratSeries(policy){let L=.32,S=.28;const Ls=[L],Ss=[S];for(let k=1;k<years.length;k++){L=Math.min(.96,L*1.20);S=Math.min(.96,S*(policy?1.18:1.06));Ls.push(L);Ss.push(S);}return{Ls,Ss};}
+function drawRatchet(up){const policy=document.getElementById('ratPolicy').checked,{Ls,Ss}=ratSeries(policy),lp=[],sp=[];
+ for(let i=0;i<=up;i++){lp.push(xR(i)+','+yR(Ls[i]));sp.push(xR(i)+','+yR(Ss[i]));}
+ ratLarge.setAttribute('points',lp.join(' '));ratSme.setAttribute('points',sp.join(' '));
+ let top=[],bot=[];for(let i=0;i<=up;i++)top.push(xR(i)+','+yR(Ls[i]));for(let i=up;i>=0;i--)bot.push(xR(i)+','+yR(Ss[i]));
+ ratMoat.setAttribute('d','M'+top.join(' L')+' L'+bot.join(' L')+' Z');ratYearEl.textContent=years[up];ratLabels.innerHTML='';
+ if(up>0){const gap=((Ls[up]-Ss[up])*100).toFixed(0),t=document.createElementNS('http://www.w3.org/2000/svg','text');
+  t.setAttribute('class','axis');t.setAttribute('x',xR(up)-6);t.setAttribute('y',yR((Ls[up]+Ss[up])/2));t.setAttribute('text-anchor','end');t.setAttribute('fill','var(--labour)');t.style.fontSize='10px';t.textContent='moat '+gap+'pts';ratLabels.appendChild(t);}}
+function ratRun(){clearInterval(ratTimer);ratStep=0;drawRatchet(0);ratTimer=setInterval(()=>{ratStep++;drawRatchet(ratStep);
+ if(ratStep>=years.length-1){clearInterval(ratTimer);const p=document.getElementById('ratPolicy').checked;
+  document.getElementById('ratNote').innerHTML=p?"<b style='color:var(--signal)'>Data-access right ON.</b> The moat narrows sharply &mdash; SMEs compound near the incumbent's rate. The ratchet is jammed at its input &mdash; the Coasean cure.":"<b style='color:var(--labour)'>Status quo.</b> The incumbent's lead widens every year as data advantage compounds. Nothing in the mechanism reverses it &mdash; which is why the distribution gap, once open, persists.";}},520);}
 document.getElementById('ratRun').onclick=ratRun;
 document.getElementById('ratReset').onclick=()=>{clearInterval(ratTimer);ratStep=0;drawRatchet(0);ratYearEl.textContent=2025;};
 document.getElementById('ratPolicy').onchange=()=>{clearInterval(ratTimer);ratStep=0;drawRatchet(0);ratYearEl.textContent=2025;};
 drawRatchet(0);
 
-/* ============================================================
-   3. POLICY WARGAME  — labour-share trajectory model
-   ============================================================ */
-const lD=document.getElementById('lD'), lC=document.getElementById('lC'), lR=document.getElementById('lR');
-const GX0=50, GX1=540, GY0=30, GY1=240;          // y maps labour share 60%..55% (top..bottom over 30..240? define)
-// map labour share value (54..60) to y: 60->30, 55->240  => slope
-function lsY(v){ return GY0 + (GY1-GY0)*((60-v)/(60-55)); }   // 60->GY0, 55->GY1
-const gx=i=>GX0+(GX1-GX0)*(i/(years.length-1));
-function model(){
-  const d=+lD.value/100, c=+lC.value/100, r=+lR.value/100;
-  const ratchetControl=0.6*d+0.4*c;               // jams the ratchet -> protects labour share
-  const adoption=0.5*d+0.5*c;                      // breadth of adoption -> productivity
-  const ls2030=56.0+3.6*ratchetControl;            // 56.0 .. 59.6
-  const gini2030=0.332-0.027*ratchetControl;       // 0.332 .. 0.305
-  const grossDisp=16+12*(1-ratchetControl);        // 16 .. 28
-  const netDisp=grossDisp*(1-0.65*r);              // reskilling re-absorbs up to 65%
-  const prod=8+12*adoption;                        // 8 .. 20 (cumulative MFP-ish %)
-  const overall=(ratchetControl+r+adoption)/3;
-  return {d,c,r,ratchetControl,ls2030,gini2030,netDisp,prod,overall};
-}
-function lsPath(ls2030){
-  const pts=[]; const start=59.0;
-  for(let i=0;i<years.length;i++){
-    const t=i/(years.length-1);
-    const eased=t*t*(3-2*t);                        // smoothstep
-    const v=start+(ls2030-start)*eased;
-    pts.push({x:gx(i), y:lsY(v), v});
-  }
-  return pts;
-}
-function drawGame(){
-  const m=model();
-  document.getElementById('vD').textContent=lD.value;
-  document.getElementById('vC').textContent=lC.value;
-  document.getElementById('vR').textContent=lR.value;
-  const pts=lsPath(m.ls2030);
-  document.getElementById('gameLine').setAttribute('points',pts.map(p=>p.x+','+p.y).join(' '));
-  const end=pts[pts.length-1];
-  const dot=document.getElementById('gameDot'); dot.setAttribute('cx',end.x); dot.setAttribute('cy',end.y);
-  const open=m.ls2030<57;
-  const col=open?'var(--labour)':(m.ls2030>58.6?'var(--signal)':'var(--ink-soft)');
-  document.getElementById('gameLine').setAttribute('stroke',col);
-  dot.setAttribute('fill',col);
-  // readouts
-  const roLS=document.getElementById('roLS'); roLS.textContent=m.ls2030.toFixed(1)+'%'; roLS.style.color=col;
-  const roG=document.getElementById('roG'); roG.textContent=m.gini2030.toFixed(3); roG.style.color=m.gini2030>0.31?'var(--labour)':'var(--ink)';
-  document.getElementById('roD').innerHTML=m.netDisp.toFixed(0)+'<small> %</small>';
-  document.getElementById('roP').innerHTML='+'+m.prod.toFixed(0)+'<small> %</small>';
-  // scenario badge
-  const badge=document.getElementById('badge');
-  let label,bg,bc,tc;
-  if(m.overall<0.33){label='— Concentration (downside) —'; bg='rgba(178,58,35,.12)'; bc='var(--labour)'; tc='var(--labour)';}
-  else if(m.overall>0.67){label='— Active Transition (upside) —'; bg='rgba(47,93,84,.12)'; bc='var(--signal)'; tc='var(--signal)';}
-  else{label='— Drift (baseline) —'; bg='var(--paper-2)'; bc='var(--rule-strong)'; tc='var(--ink-soft)';}
-  badge.textContent=label; badge.style.background=bg; badge.style.borderColor=bc; badge.style.color=tc;
-  // note
-  document.getElementById('gameNote').innerHTML = open
-    ? "Labour share falls below the 57% benchmark — <b style='color:var(--labour)'>the distribution gap is open.</b> The dividend exists, but it is not reaching middle-skill labour."
-    : (m.ls2030>58.6
-        ? "Levers high: reinstatement and data access hold the labour share up — <b style='color:var(--signal)'>the gap stays closed</b> while the dividend still lands."
-        : "On a drifting path: the dividend arrives, but distribution slides without decisively crossing the benchmark.");
-}
-[lD,lC,lR].forEach(el=>el.addEventListener('input',drawGame));
-drawGame();
-
-/* ============================================================
-   4. CHANNEL → LEVER MATRIX
-   ============================================================ */
+/* ---------- MATRIX ---------- */
 const levers={
-  data:{lk:"Data-access / portability right · ACCC, Consumer Data Right",
-        t:"Acts on the <b>industry-structure</b> channel. By giving SMEs access to the data inputs incumbents accumulate, it lowers the data moat and jams the concentration ratchet at its source. KPI: SME core-activity AI use reaches large-firm rates by 2030."},
-  comp:{lk:"Competition enforcement on AI inputs · ACCC, Productivity Commission",
-        t:"Acts on <b>industry structure</b> and <b>wages</b>. Keeping compute, data and model access contestable prevents incumbent lock-in and keeps the dividend bargaining-exposed. KPI: concentration (HHI) stable in key AI-input markets."},
-  skill:{lk:"Outcome-tied reskilling · DEWR / JobTrainer, monitored by JSA",
-        t:"Acts on the <b>tasks</b> and <b>employment</b> channels. Accelerates reinstatement for displaced clerical workers; funding is released against re-employment outcomes, not enrolments — because Australian effectiveness data is thin. KPI: % re-employed at ≥ prior wage within 18 months."},
-  levy:{lk:"No AI levy or direct transfer — excluded by design",
-        t:"A redistributive instrument is deliberately <b>excluded</b>. It fights the symptom (inequality) every year rather than the mechanism (the ratchet), and is less durable than assigning the underlying data right. This is the Coasean choice."}
+ data:{lk:"Data-access / portability right &middot; ACCC, Consumer Data Right",t:"Acts on the <b>industry-structure</b> channel. By giving SMEs the data inputs incumbents accumulate, it lowers the data moat and jams the concentration ratchet at its source. KPI: SME core-activity AI use reaches large-firm rates by 2030."},
+ comp:{lk:"Competition enforcement on AI inputs &middot; ACCC, Productivity Commission",t:"Acts on <b>industry structure</b> and <b>wages</b>. Keeping compute, data and model access contestable prevents incumbent lock-in and keeps the dividend bargaining-exposed. KPI: concentration (HHI) stable in key AI-input markets."},
+ skill:{lk:"Outcome-tied reskilling &middot; DEWR / JobTrainer, monitored by JSA",t:"Acts on the <b>tasks</b> and <b>employment</b> channels. Accelerates reinstatement for displaced clerical workers; funding is released against re-employment outcomes, not enrolments &mdash; because Australian effectiveness data is thin. KPI: % re-employed at &ge; prior wage within 18 months."},
+ levy:{lk:"No AI levy or direct transfer &mdash; excluded by design",t:"A redistributive instrument is deliberately <b>excluded</b>. It fights the symptom (inequality) every year rather than the mechanism (the ratchet), and is less durable than assigning the underlying data right. This is the Coasean choice."}
 };
 const mDetail=document.getElementById('mDetail');
 function showLever(k){mDetail.innerHTML='<span class="lk">'+levers[k].lk+'</span>'+levers[k].t;}
-document.querySelectorAll('.mcell').forEach(c=>{
-  c.onclick=()=>{document.querySelectorAll('.mcell').forEach(x=>x.classList.remove('on'));c.classList.add('on');showLever(c.dataset.k);};
-});
+document.querySelectorAll('.mcell').forEach(c=>c.onclick=()=>{document.querySelectorAll('.mcell').forEach(x=>x.classList.remove('on'));c.classList.add('on');showLever(c.dataset.k);});
 showLever('data');
 
-/* ============================================================
-   5. SCROLL PROGRESS + NAV HIGHLIGHT
-   ============================================================ */
-const prog=document.getElementById('scroll-progress');
-const navlinks=[...document.querySelectorAll('#nav a')];
-const secs=navlinks.map(a=>document.querySelector(a.getAttribute('href')));
-window.addEventListener('scroll',()=>{
-  const h=document.documentElement;
-  prog.style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%';
-  let cur=0;
-  secs.forEach((s,i)=>{ if(s && s.getBoundingClientRect().top<140) cur=i; });
-  navlinks.forEach((a,i)=>a.classList.toggle('on',i===cur));
-},{passive:true});
+/* ---------- SCROLLYTELLING + PROGRESS + NAV ---------- */
+const sDiv=document.getElementById('sDiv'),sLab=document.getElementById('sLab'),sGap=document.getElementById('sGap'),sDot=document.getElementById('sDivDot');
+const Ldiv=sDiv.getTotalLength(),Llab=sLab.getTotalLength();
+sDiv.style.strokeDasharray=Ldiv;sLab.style.strokeDasharray=Llab;
+const cnt=document.getElementById('cnt'),cntLs=document.getElementById('cntLs');
+const caps=[document.getElementById('cap1'),document.getElementById('cap2'),document.getElementById('cap3')];
+const scrolly=document.getElementById('gap-scroll');
+const prog=document.getElementById('scroll-progress'),navlinks=[...document.querySelectorAll('#nav a')],secs=navlinks.map(a=>document.querySelector(a.getAttribute('href')));
+let ticking=false;
+function onScroll(){
+ const h=document.documentElement;prog.style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%';
+ // scrolly progress
+ const rect=scrolly.getBoundingClientRect();const total=scrolly.offsetHeight-window.innerHeight;
+ let p=Math.min(Math.max(-rect.top/total,0),1);
+ const pd=Math.min(p/0.55,1);// dividend draws first 55%
+ sDiv.style.strokeDashoffset=Ldiv*(1-pd);sLab.style.strokeDashoffset=Llab*(1-Math.min(p/0.8,1));
+ sGap.setAttribute('opacity',Math.max(0,(p-0.45)/0.55*0.9));
+ cnt.textContent='$'+Math.round(pd*116)+'bn';
+ cntLs.textContent= p>0.45?'held flat &mdash; the gap':'held flat';
+ // dot along dividend
+ const pt=sDiv.getPointAtLength(Ldiv*pd);sDot.setAttribute('cx',pt.x);sDot.setAttribute('cy',pt.y);sDot.setAttribute('opacity',pd>0.02?1:0);
+ caps.forEach((c,i)=>{const lo=i*0.33,hi=lo+0.4;c.classList.toggle('on',p>=lo&&p<hi+0.15);});
+ // nav
+ let cur=0;secs.forEach((s,i)=>{if(s&&s.getBoundingClientRect().top<140)cur=i;});
+ navlinks.forEach((a,i)=>a.classList.toggle('on',i===cur));
+ ticking=false;
+}
+window.addEventListener('scroll',()=>{if(!ticking){requestAnimationFrame(onScroll);ticking=true;}},{passive:true});
+onScroll();
+
+/* ---------- REVEAL ON SCROLL ---------- */
+const io=new IntersectionObserver((es)=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:0.12});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
 </script>
 </body>
 </html>
