@@ -1,7 +1,7 @@
 # BUILD BLUEPRINT — ECON1626 A3
 ## "The Distribution Problem" — Australia's AI Future, 2025–2030
 
-> Analytical spine for the delivered site (`index.html`). Read alongside `KNOWLEDGE_BASE_A3.md` and `RESEARCH_EVIDENCE_BASE_A3.md`.
+> Analytical spine for the delivered site (`forecast.html`) — process documentation accompanying the essay.
 > Signature concept = **the distribution gap**; signature mechanism = **the concentration ratchet**.
 
 ---
@@ -9,7 +9,7 @@
 ## 1. Thesis
 Australia gets a real AI productivity dividend (PC 2025: MFP >2.3%, ~$116bn over the decade). The contested question is **who captures it**. On status-quo policy the dividend flows to capital + complemented high-skill labour, opening **the distribution gap** — the wedge between the dividend AI generates and the share reaching middle-skill labour. Falsifiable: labour share <~57% OR Gini >0.31 by 2028 = gap open.
 
-**Signature mechanism — the concentration ratchet:** adoption rises with firm size/data (OECD 2025) → data-rich incumbents capture the dividend first → reinvest in data/model advantage → moat deepens, SMEs can't reach parity → market + spatial concentration (CSIRO/TCA 2023) → labour share falls *structurally* (≈83% of the decline is within-industry, La Cava 2019). The ratchet is why the gap doesn't self-correct; the cure targets its input (data access), not its symptom (inequality).
+**Signature mechanism — the concentration ratchet:** adoption rises with firm size/data (OECD 2025) → data-rich incumbents capture the dividend first → reinvest in data/model advantage → moat deepens, SMEs can't reach parity → market + spatial concentration (CSIRO/TCA 2023) → labour share falls *structurally* (driven by technology + market power, La Cava 2019). The ratchet is why the gap doesn't self-correct. The binding input is not the data file but the **deployment/relationship layer** — the customer's default interface (primary account, payroll, direct debits) where AI turns predictions into action; CDR ports the signal, not the relationship. The cure targets contestability of that relationship layer, not data access alone, and not the symptom (inequality).
 
 ---
 
@@ -33,18 +33,18 @@ Australia gets a real AI productivity dividend (PC 2025: MFP >2.3%, ~$116bn over
 ---
 
 ## 4. Policy playbook (Coasean-Berg)
-Frame: assign rights over the ratchet's input (data) + keep AI-input markets contestable — **not** redistribution (Coase 1960; Berg forthcoming; PC 2025 "last resort").
+Frame: make the ratchet's binding input — the **relationship/deployment layer**, not just data — contestable (account switching + payment-mandate portability, complementing a data-access right), and keep AI-input markets contestable — **not** redistribution (Coase 1960; Berg forthcoming; PC 2025 "last resort").
 
 | Lever | Channel | Mechanism | Agency / frame | KPI |
 |---|---|---|---|---|
-| Low-cost, high-value-use data-access right (reformed CDR) | Industry structure | Lowers data moat → jams ratchet | ACCC; CDR | SME core-use AI ≥ large-firm by 2030 |
+| Relationship-layer contestability (account switching + portable payment mandates) + low-cost data-access right | Industry structure | CDR makes *prediction* contestable, not *intervention*; moving the relationship anchor jams the ratchet | ACCC; CDR; Treasury | Primary-account switching ↑ and SME core-use AI ≥ large-firm by 2030 |
 | Competition enforcement on AI inputs | Industry structure/wages | Prevents incumbent lock-in | ACCC; PC | HHI stable in AI-input markets |
 | Outcome-tied reskilling | Tasks/employment | Accelerates reinstatement | DEWR/JobTrainer; JSA | % re-employed at ≥ prior wage in 18mo |
 | (No AI levy/transfer) | — | Deliberately excluded — Berg-aligned | — | — |
 
 **Risks + mitigations:** (1) privacy/transaction cost → tiered portable consent (Berg 2018); (2) regulatory drag → ex-post last-resort (PC 2025); (3) reskilling without outcomes → outcome-tied funding + JSA monitoring.
 
-**Real-world anchor — the CDR natural experiment (replaces the recycled CBA case):** Australia already assigned a statutory data-access right (CDR) in banking in 2020; an ABA/Accenture industry review put active uptake at **0.31%** of bank customers by end-2023, after **~A$1.5bn** compliance spend; the government reformed the scheme in 2024 ("a good idea, badly executed"). The lesson is Coasean: assigning the right is necessary but not sufficient — transaction costs/design decide whether it jams the ratchet → hence a *low-cost, high-value-use* right, not the CDR as built.
+**Real-world anchor — the CDR natural experiment (replaces the recycled CBA case):** Australia already assigned a statutory data-access right (CDR) in banking in 2020; an ABA/Accenture industry review put active uptake at **0.31%** of bank customers by end-2023, after **~A$1.5bn** compliance spend; the government reset it in 2024 (Treasury 2022, 2024). But the data layer IS now being contested — CDR powers mortgage broking + alt-credit scoring (ACCC 2025). The sharper lesson: **CDR makes *prediction* contestable, not *intervention*** — it ports the signal, not the customer's default interface (primary account, payroll, direct debits) where AI turns predictions into retention/pricing/cross-sell. The ratchet's pawl = the relationship anchor, which a data right can't port → the lever targets relationship-layer contestability (account switching + payment-mandate portability), complementing the data right, not the CDR-as-built alone.
 
 **Political economy:** incumbents = concentrated incentive to block reform; SMEs/displaced = diffuse. Equity: women ~72% of exposed clerical roles.
 
@@ -66,4 +66,4 @@ Frame: assign rights over the ratchet's input (data) + keep AI-input markets con
 ~2,000 ±10% (delivered ≈ 2,019 prose words). Every number sourced or tagged.
 
 ## 7. Build/process
-Self-contained `index.html` (vanilla JS + inline SVG/Canvas; Google Fonts only). Renders on GitHub Pages from repo root. Frequent, descriptive commits — not a single end-of-process upload.
+Self-contained `forecast.html` (vanilla JS + inline SVG/Canvas; Google Fonts only). Renders on GitHub Pages from repo root. Frequent, descriptive commits — not a single end-of-process upload.
