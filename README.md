@@ -53,7 +53,7 @@ python3 -m http.server 8000
 ## Repository structure
 ```
 <repo>/
-├── forecast.html         # the interactive forecast (essay + interactives)
+├── forecast.html      # the interactive forecast (essay + interactives)
 ├── README.md          # this file
 └── BLUEPRINT_A3.md    # the analytical spine (process documentation)
 ```
